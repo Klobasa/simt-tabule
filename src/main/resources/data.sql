@@ -1,0 +1,1 @@
+Drop table k IF EXISTS;
