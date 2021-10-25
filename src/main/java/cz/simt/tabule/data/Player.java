@@ -18,7 +18,7 @@ public class Player {
     private String line;
     private String route;
     private String vehicle;
-    private LocalTime startTime;
+    private LocalDateTime startTime;
     private LocalTime time;
     private String station;
     private LocalDateTime updated;
@@ -33,7 +33,7 @@ public class Player {
 
     }
 
-    public Player(String id, String line, String route, String vehicle, LocalTime startTime, LocalTime time, String station, String endStation, int delay, LocalDateTime updated) {
+    public Player(String id, String line, String route, String vehicle, LocalDateTime startTime, LocalTime time, String station, String endStation, int delay, LocalDateTime updated) {
         this.id = id;
         this.line = line;
         this.route = route;
@@ -118,11 +118,11 @@ public class Player {
         this.line = line;
     }
 
-    public LocalTime getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(final LocalTime startTime) {
+    public void setStartTime(final LocalDateTime startTime) {
         this.startTime = startTime;
     }
 

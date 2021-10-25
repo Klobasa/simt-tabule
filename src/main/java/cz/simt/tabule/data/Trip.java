@@ -1,6 +1,6 @@
 package cz.simt.tabule.data;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,12 +15,12 @@ public class Trip {
     private int sequence;
     private String playerId;
     private String stopId;
-    private LocalTime time;
+    private LocalDateTime time;
     private boolean position = false;
 
     public Trip() {}
 
-    public Trip(int sequence, String playerId, String stopId, LocalTime time) {
+    public Trip(int sequence, String playerId, String stopId, LocalDateTime time) {
         this.sequence = sequence;
         this.playerId = playerId;
         this.stopId = stopId;
@@ -39,7 +39,7 @@ public class Trip {
         return playerId;
     }
 
-    public LocalTime getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
 
@@ -51,7 +51,7 @@ public class Trip {
         this.stopId = stopId;
     }
 
-    public void setTime(final LocalTime time) {
+    public void setTime(final LocalDateTime time) {
         this.time = time;
     }
 
