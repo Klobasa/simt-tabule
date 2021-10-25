@@ -1,12 +1,12 @@
 package cz.simt.tabule.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -125,14 +125,13 @@ public class PlayerService {
         String[] sp = player.split("/");
         if (sp.length == 8) {
             String[] st = sp[3].split(":");
-            if (sp[0].length() == 1) {
-                sp[7] += ":2";
-            } else {
-                sp[7] += ":0";
-            }
+            LocalDateTime startTime = LocalDate.now().atTime(Integer.parseInt(st[0]), Integer.parseInt(st[1]));
+            startTime = (startTime.getHour() < 4 && LocalDateTime.now().isAfter(LocalDate.now().atTime(19,0))) ? startTime.plusDays(1) : startTime;
+            sp[7] += (sp[0].length() == 1) ? ":2" : ":0";
+
             try {
-                return new Player(getPlayerIdFromPattern(player), sp[0], sp[1], sp[5], LocalTime.of(Integer.parseInt(st[0]), Integer.parseInt(st[1])), getTimeFromDelay(sp[4]), sp[7], sp[2], Integer.parseInt(sp[4]), LocalDateTime.now());
-            } catch (RuntimeException e) {
+                return new Player(getPlayerIdFromPattern(player), sp[0], sp[1], sp[5], startTime, getTimeFromDelay(sp[4]), sp[7], sp[2], Integer.parseInt(sp[4]), LocalDateTime.now());
+            } catch (Exception e) {
                 System.out.println("");
                 System.out.println("Error creating player " + player);
                 e.printStackTrace();

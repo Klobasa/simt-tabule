@@ -1,6 +1,6 @@
 package cz.simt.tabule.service;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +29,7 @@ public class TripService {
     public void loadTrip(Player player) {
         List<Route> station = routeService.getRoute(player.getLine(), player.getRoute());
         for (Route s : station) {
-            LocalTime time = player.getStartTime();
+            LocalDateTime time = player.getStartTime();
             if (player.getStartTime().getHour() < 6 || player.getStartTime().getHour() > 19) {
                 //noc
                 time = time.plusMinutes(s.getTime_noc());

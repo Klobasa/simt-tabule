@@ -3,6 +3,7 @@ package cz.simt.tabule.service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -101,18 +102,19 @@ public class StationService {
 
         for (Trip trip: tripInfo) {
             Player player = playerService.getPlayerFromId(trip.getPlayerId());
+
             int playerPosition = tripService.getPositionByPlayerId(player.getId());
             int isAtStation = playerPosition == trip.getSequence() ? 1 : 0;
             int timeToDeparture = (int) LocalTime.now().until(trip.getTime(), ChronoUnit.MINUTES);
             timeToDeparture = player.getDelay() > 0 ? timeToDeparture : timeToDeparture-(player.getDelay()/60);
-            System.out.println(trip.getTime().plusMinutes(90)+">"+(LocalTime.now()) +" + "+ trip.getTime().minusMinutes(120)+"<"+(LocalTime.now()));
+
             if (playerPosition <= trip.getSequence() && player.getUpdated().isAfter(LocalDateTime.now().minusMinutes(15)) &&
-                    trip.getTime().plusMinutes(90).isAfter(LocalTime.now()) && //čas po odjezdu
-                    trip.getTime().minusMinutes(120).isBefore(LocalTime.now()))  //čas před odjezdem
+                    trip.getTime().plusMinutes(90).isAfter(LocalDateTime.now()) && //čas po odjezdu
+                    trip.getTime().minusMinutes(120).isBefore(LocalDateTime.now()))  //čas před odjezdem
             {
                 int delayInMins = player.getDelay() < 0 ? abs(player.getDelay()/60) : 0;
                 delayInMins = player.getUpdated().isAfter(LocalDateTime.now().minusMinutes(2)) ? delayInMins : -1;
-                GetStationDto getStationDto = new GetStationDto(index++, player.getLine(), player.getEndStation(), player.getStation(), trip.getTime().toString(), delayInMins, isAtStation, timeToDeparture);
+                GetStationDto getStationDto = new GetStationDto(index++, player.getLine(), player.getEndStation(), player.getStation(), trip.getTime().format(DateTimeFormatter.ofPattern("HH:mm")), delayInMins, isAtStation, timeToDeparture);
                 getStationDtos.add(getStationDto);
             }
 
