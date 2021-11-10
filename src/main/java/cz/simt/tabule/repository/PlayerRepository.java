@@ -25,4 +25,8 @@ public interface PlayerRepository extends CrudRepository<Player, Long> {
     @Modifying
     @Query("SELECT p FROM Player p WHERE p.checked = 'N'")
     List<Player> findUnchecked();
+
+    @Transactional
+    @Query("SELECT p.id FROM Player p")
+    List<String> findAllPlayersId();
 }

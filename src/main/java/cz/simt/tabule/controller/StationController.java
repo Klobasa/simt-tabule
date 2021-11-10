@@ -1,9 +1,7 @@
 package cz.simt.tabule.controller;
 
-import java.util.List;
-
-import com.google.gson.Gson;
 import cz.simt.tabule.service.GroupStationService;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -28,7 +26,9 @@ public class StationController {
     @CrossOrigin(origins = "http://localhost:8081")
     public @ResponseBody String getListOfStations() {
         System.out.println("GetListOfStations");
-        return new Gson().toJson(groupStationService.getListOfStations());
+        return new JSONObject()
+                .put("stations", groupStationService.getListOfStations())
+                .toString();
     }
     
 
@@ -36,7 +36,9 @@ public class StationController {
     @CrossOrigin(origins = "http://localhost:8081")
     public @ResponseBody String getStationData(@PathVariable final String stationUrlName) {
         System.out.println("GetStationInfo");
-        String json = new Gson().toJson(stationService.getStationInfo(stationUrlName));
-        return json;
+        return new JSONObject()
+                .put("stationName", groupStationService.getStationNameByUrlName(stationUrlName))
+                .put("departures", stationService.getStationInfo(stationUrlName))
+                .toString();
     }
 }

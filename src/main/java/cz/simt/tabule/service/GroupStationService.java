@@ -63,4 +63,12 @@ public class GroupStationService {
         }
         return getGroupStationsDto;
     }
+
+    public String getStationNameById(String id) {
+        return groupStationRepository.findNameByStationId(id+"%", "%,"+id+"%", "%,"+id);
+    }
+
+    public String getStationNameByUrlName(String urlName) {
+        return groupStationRepository.findFirstByUrlName(urlName).getName();
+    }
 }

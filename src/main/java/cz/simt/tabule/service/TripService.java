@@ -1,15 +1,17 @@
 package cz.simt.tabule.service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import cz.simt.tabule.dto.GetFullTripDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cz.simt.tabule.data.Player;
 import cz.simt.tabule.data.Route;
-import cz.simt.tabule.data.Station;
 import cz.simt.tabule.data.Trip;
 import cz.simt.tabule.repository.TripRepository;
 
@@ -49,6 +51,20 @@ public class TripService {
 
         }
 
+    }
+
+    public List<GetFullTripDto> getFullTrip(String id) {
+        List<Trip> tripInfo = tripRepository.findByPlayerIdEqualsOrderBySequenceAsc(id);
+        List<GetFullTripDto> tripDto = new ArrayList<>();
+
+        for (Trip trip : tripInfo) {
+            tripDto.add(new GetFullTripDto(groupStationService.getStationNameById(trip.getStopId()), trip.getSequence(), trip.getPosition() ? 1 : 0, trip.getTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
+        }
+        return tripDto;
+    }
+
+    public String getLastStation(String playerId) {
+        return groupStationService.getStationNameById(tripRepository.findFirstByPlayerIdOrderBySequenceDesc(playerId).getStopId());
     }
 
     public void unsetPosition(String playerId) {

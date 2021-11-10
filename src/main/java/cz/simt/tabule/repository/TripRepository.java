@@ -34,4 +34,7 @@ public interface TripRepository extends CrudRepository<Trip, Long> {
     @Query("SELECT t.sequence FROM Trip t WHERE t.playerId = ?1 AND t.position = true")
     Optional<Integer> findSequenceByAPlayerId(String playerId);
 
+    List<Trip> findByPlayerIdEqualsOrderBySequenceAsc(String id);
+
+    Trip findFirstByPlayerIdOrderBySequenceDesc(String id);
 }

@@ -105,7 +105,8 @@ public class StationService {
 
             int playerPosition = tripService.getPositionByPlayerId(player.getId());
             int isAtStation = playerPosition == trip.getSequence() ? 1 : 0;
-            int timeToDeparture = (int) LocalTime.now().until(trip.getTime(), ChronoUnit.MINUTES);
+            int timeToDeparture = (int) LocalDateTime.now().until(trip.getTime(), ChronoUnit.MINUTES);
+            String traction = parseInt(player.getLine()) < 20 ? parseInt(player.getLine()) < 10 ? "tram" : "trolleybus" : "bus";
             timeToDeparture = player.getDelay() > 0 ? timeToDeparture : timeToDeparture-(player.getDelay()/60);
 
             if (playerPosition <= trip.getSequence() && player.getUpdated().isAfter(LocalDateTime.now().minusMinutes(15)) &&
@@ -114,12 +115,20 @@ public class StationService {
             {
                 int delayInMins = player.getDelay() < 0 ? abs(player.getDelay()/60) : 0;
                 delayInMins = player.getUpdated().isAfter(LocalDateTime.now().minusMinutes(2)) ? delayInMins : -1;
-                GetStationDto getStationDto = new GetStationDto(index++, player.getLine(), player.getEndStation(), player.getStation(), trip.getTime().format(DateTimeFormatter.ofPattern("HH:mm")), delayInMins, isAtStation, timeToDeparture);
+                GetStationDto getStationDto = new GetStationDto(index++, player.getLine(), player.getRoute(), traction, player.getEndStation(), player.getStation(), trip.getTime().format(DateTimeFormatter.ofPattern("HH:mm")), delayInMins, isAtStation, timeToDeparture);
                 getStationDtos.add(getStationDto);
             }
 
         }
         return getStationDtos;
+    }
+
+    private static int parseInt(String text) {
+        try {
+            return Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            return 100;
+        }
     }
 
 

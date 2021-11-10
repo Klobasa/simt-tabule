@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -14,6 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import cz.simt.tabule.dto.GetPlayerIdDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -103,6 +105,8 @@ public class PlayerService {
                     player.setChecked('Y');
                     playerRepository.save(player);
                     tripService.loadTrip(player);
+                    player.setEndStation(tripService.getLastStation(player.getId()));
+                    playerRepository.save(player);
                     tripService.setPosition(player.getId(), player.getStation());
                     System.out.println(LocalDateTime.now() + " Save new player: " + stringPlayer[i]);
                 }
@@ -156,5 +160,17 @@ public class PlayerService {
     public Player getPlayerFromId(String playerId) {
         Optional<Player> player = playerRepository.findById(playerId);
         return player.orElse(null);
+    }
+
+    public List<GetPlayerIdDto> getAllPlayersId() {
+        List<String> playersId = playerRepository.findAllPlayersId();
+        List<GetPlayerIdDto> playersIdDto = new ArrayList<>();
+        int cnt = 0;
+
+        for(String playerId : playersId) {
+            playersIdDto.add(new GetPlayerIdDto(cnt++, playerId));
+        }
+
+        return playersIdDto;
     }
 }
