@@ -2,6 +2,7 @@ package cz.simt.tabule.service;
 
 import java.util.*;
 
+import cz.simt.tabule.data.Route;
 import cz.simt.tabule.dto.GetGroupStationsDto;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
@@ -15,10 +16,12 @@ import cz.simt.tabule.repository.GroupStationRepository;
 @Service
 public class GroupStationService {
     private final GroupStationRepository groupStationRepository;
+    private final RouteService routeService;
 
     @Autowired
-    public GroupStationService(GroupStationRepository groupStationRepository) {
+    public GroupStationService(GroupStationRepository groupStationRepository, RouteService routeService) {
         this.groupStationRepository = groupStationRepository;
+        this.routeService = routeService;
     }
 
     public void createGroupedStations(List<Station> stations) {
@@ -45,6 +48,7 @@ public class GroupStationService {
                 }
             }
         }
+        setLinesToStations();
     }
 
     public List<String> getStationIdsByUrlName(String urlName) {
@@ -58,17 +62,36 @@ public class GroupStationService {
         Iterable<GroupStation> groupStations = groupStationRepository.findAllByOrderByNameAsc();
         List<GetGroupStationsDto> getGroupStationsDto = new ArrayList<>();
         for (GroupStation gs : groupStations) {
-            GetGroupStationsDto getGroupStationDto = new GetGroupStationsDto(gs.getId(), gs.getName(), gs.getUrlName());
+            List<String> lines = Arrays.asList(gs.getLines().split(","));
+                    GetGroupStationsDto getGroupStationDto = new GetGroupStationsDto(gs.getId(), gs.getName(), gs.getUrlName(), lines);
             getGroupStationsDto.add(getGroupStationDto);
         }
         return getGroupStationsDto;
     }
 
-    public String getStationNameById(String id) {
+    public GroupStation getGroupStationById(String id) {
         return groupStationRepository.findNameByStationId(id+"%", "%,"+id+"%", "%,"+id);
     }
 
-    public String getStationNameByUrlName(String urlName) {
+    public String getGroupStationNameByUrlName(String urlName) {
         return groupStationRepository.findFirstByUrlName(urlName).getName();
+    }
+
+    private void setLinesToStations() {
+        List<Route> routes = routeService.getRoutesWithoutDepot();
+
+        for (Route route : routes) {
+            String stationIdWithTraction = route.getLine().length() == 1 ? route.getStation() + ":2" : route.getStation() + ":0";
+            GroupStation groupStation = getGroupStationById(stationIdWithTraction);
+
+            if (groupStation.getLines() == null || groupStation.getLines().isEmpty()) {
+                groupStation.setLines(route.getLine());
+                groupStationRepository.save(groupStation);
+            } else if (!groupStation.getLines().contains(route.getLine())) {
+                System.out.println(groupStation.getLines()+","+route.getLine());
+                groupStation.setLines(groupStation.getLines()+","+route.getLine());
+                groupStationRepository.save(groupStation);
+            }
+        }
     }
 }

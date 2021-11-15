@@ -17,4 +17,8 @@ public interface RouteRepository extends CrudRepository<Route, Long> {
     @Transactional
     @Query("SELECT r FROM Route r WHERE r.line = ?1 AND r.direction = ?2 ORDER BY r.sequence")
     List<Route> findRoute(String line, String direction);
+
+    @Transactional
+    @Query("SELECT r FROM Route r WHERE LENGTH(r.direction) = 1")
+    List<Route> findAllRoutesWithoutDepot();
 }

@@ -75,4 +75,8 @@ public class RouteService {
     public List<Route> getRoute(String line, String direction) {
        return routeRepository.findRoute(line, direction);
     }
+
+    public List<Route> getRoutesWithoutDepot() {
+        return routeRepository.findAllRoutesWithoutDepot();
+    }
 }

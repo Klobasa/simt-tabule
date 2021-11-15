@@ -11,16 +11,18 @@ public class GroupStation {
     private String name;
     private String ids;
     private String urlName;
+    private String lines = "";
 
     public GroupStation() {
 
     }
 
-    public GroupStation(int id, String name, String ids, String urlName) {
+    public GroupStation(int id, String name, String ids, String urlName, String lines) {
         this.id = id;
         this.name = name;
         this.ids = ids;
         this.urlName = urlName;
+        this.lines = lines;
     }
 
     public int getId() {
@@ -33,6 +35,10 @@ public class GroupStation {
 
     public String getName() {
         return name;
+    }
+
+    public String getLines() {
+        return lines;
     }
 
     public void setName(final String name) {
@@ -53,5 +59,9 @@ public class GroupStation {
 
     public void setUrlName(final String urlName) {
         this.urlName = urlName;
+    }
+
+    public void setLines(String lines) {
+        this.lines = lines;
     }
 }

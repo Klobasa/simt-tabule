@@ -58,13 +58,13 @@ public class TripService {
         List<GetFullTripDto> tripDto = new ArrayList<>();
 
         for (Trip trip : tripInfo) {
-            tripDto.add(new GetFullTripDto(groupStationService.getStationNameById(trip.getStopId()), trip.getSequence(), trip.getPosition() ? 1 : 0, trip.getTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
+            tripDto.add(new GetFullTripDto(groupStationService.getGroupStationById(trip.getStopId()).getName(), trip.getSequence(), trip.getPosition() ? 1 : 0, trip.getTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
         }
         return tripDto;
     }
 
     public String getLastStation(String playerId) {
-        return groupStationService.getStationNameById(tripRepository.findFirstByPlayerIdOrderBySequenceDesc(playerId).getStopId());
+        return groupStationService.getGroupStationById(tripRepository.findFirstByPlayerIdOrderBySequenceDesc(playerId).getStopId()).getName();
     }
 
     public void unsetPosition(String playerId) {

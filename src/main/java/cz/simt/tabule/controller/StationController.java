@@ -37,7 +37,7 @@ public class StationController {
     public @ResponseBody String getStationData(@PathVariable final String stationUrlName) {
         System.out.println("GetStationInfo");
         return new JSONObject()
-                .put("stationName", groupStationService.getStationNameByUrlName(stationUrlName))
+                .put("stationName", groupStationService.getGroupStationNameByUrlName(stationUrlName))
                 .put("departures", stationService.getStationInfo(stationUrlName))
                 .toString();
     }

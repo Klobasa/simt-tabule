@@ -24,8 +24,8 @@ public interface GroupStationRepository extends CrudRepository<GroupStation, Int
     String findIdsByUrlName(String urlName);
 
     @Transactional
-    @Query("SELECT s.name FROM GroupStation s WHERE s.ids LIKE ?1 OR s.ids LIKE ?2 OR s.ids LIKE ?3")
-    String findNameByStationId(String id1, String id2, String id3);
+    @Query("SELECT s FROM GroupStation s WHERE s.ids LIKE ?1 OR s.ids LIKE ?2 OR s.ids LIKE ?3")
+    GroupStation findNameByStationId(String id1, String id2, String id3);
 
     GroupStation findFirstByUrlName(String url);
 }
