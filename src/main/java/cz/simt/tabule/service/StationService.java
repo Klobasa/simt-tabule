@@ -6,8 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -29,7 +27,6 @@ import static java.lang.Math.abs;
 
 @Service
 public class StationService {
-    private final ExcelRead excelRead;
     private final StationRepository stationRepository;
     private final ApiRead apiRead;
     private final GroupStationService groupStationService;
@@ -39,37 +36,12 @@ public class StationService {
     private static final Logger logger = LoggerFactory.getLogger("StationService");
 
     @Autowired
-    public StationService(ExcelRead excelRead, StationRepository stationRepository, ApiRead apiRead, GroupStationService groupStationService, TripService tripService, PlayerService playerService) {
-        this.excelRead = excelRead;
+    public StationService(StationRepository stationRepository, ApiRead apiRead, GroupStationService groupStationService, TripService tripService, PlayerService playerService) {
         this.stationRepository = stationRepository;
         this.apiRead = apiRead;
         this.groupStationService = groupStationService;
         this.tripService = tripService;
         this.playerService = playerService;
-    }
-
-   // @PostConstruct
-    public void loadStationsOnStartup() {
-
-        Station station = new Station();
-        Map<Integer, List<String>> stations = excelRead.getRoute("Stops");
-        for (int i = 0; i<stations.size(); i++) {
-            List<String> s = stations.get(i);
-            station.setGameId((long) Double.parseDouble(s.get(1)));
-            station.setStationName(s.get(0));
-            stationRepository.save(station);
-        }
-    }
-
-    public String findStationName(Long gameId, String line) {
-        Optional<Station> s;
-        if (line.length() == 1) {
-            s = stationRepository.findByGameIdAndTraction(gameId, 2);
-        } else {
-            s = stationRepository.findByGameIdAndTraction(gameId, 0);
-        }
-
-        return s.map(Station::getStationName).orElse(null);
     }
 
     @PostConstruct
