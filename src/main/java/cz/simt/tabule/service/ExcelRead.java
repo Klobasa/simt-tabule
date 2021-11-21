@@ -1,6 +1,5 @@
 package cz.simt.tabule.service;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,17 +20,18 @@ import org.springframework.stereotype.Service;
 
 
 @Service
+@Deprecated
 public class ExcelRead {
     public Map<Integer, List<String>> getRoute(String route) {
         String fileLocation = System.getProperty("user.dir") + "/src/main/resources/Routes.xlsx";
-        FileInputStream file = null;
+        FileInputStream file;
         try {
-            file = new FileInputStream(new File(fileLocation));
+            file = new FileInputStream(fileLocation);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
         }
-        XSSFWorkbook workbook = null;
+        XSSFWorkbook workbook;
         try {
             workbook = new XSSFWorkbook(file);
         } catch (IOException e) {
@@ -50,7 +50,7 @@ public class ExcelRead {
 
         int i = 0;
         for (Row row : sheet) {
-            data.put(i, new ArrayList<String>());
+            data.put(i, new ArrayList<>());
             for (Cell cell : row) {
                 CellValue cellValue = evaluator.evaluate(cell);
                 if (cellValue.getCellType() == CellType.NUMERIC) {

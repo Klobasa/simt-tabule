@@ -20,7 +20,6 @@ public class PlayerController {
     @GetMapping("/playersId")
     @CrossOrigin(origins = "http://localhost:8081")
     public @ResponseBody String getPlayersId() {
-        System.out.println("PlayersId");
         return new JSONObject()
                 .put("players", playerService.getAllPlayersId())
                 .toString();

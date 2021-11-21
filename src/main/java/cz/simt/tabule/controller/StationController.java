@@ -1,6 +1,5 @@
 package cz.simt.tabule.controller;
 
-import cz.simt.tabule.data.Times;
 import cz.simt.tabule.service.GroupStationService;
 import cz.simt.tabule.service.TimesService;
 import org.json.JSONObject;
@@ -12,8 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import cz.simt.tabule.service.StationService;
-
-import java.time.LocalDateTime;
 
 @Controller
 public class StationController {
@@ -31,12 +28,10 @@ public class StationController {
     @GetMapping("/zastavky")
     @CrossOrigin(origins = "http://localhost:8081")
     public @ResponseBody String getListOfStations() {
-        System.out.println("GetListOfStations");
         return new JSONObject()
                 .put("stations", groupStationService.getListOfStations())
                 .toString();
     }
-    
 
     @GetMapping("/zastavky/{stationUrlName}")
     @CrossOrigin(origins = "http://localhost:8081")
