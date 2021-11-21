@@ -2,6 +2,7 @@ package cz.simt.tabule.service;
 
 import java.util.*;
 
+import cz.simt.tabule.data.Line;
 import cz.simt.tabule.data.Route;
 import cz.simt.tabule.dto.GetGroupStationsDto;
 import org.apache.commons.lang3.StringUtils;
@@ -62,8 +63,12 @@ public class GroupStationService {
         Iterable<GroupStation> groupStations = groupStationRepository.findAllByOrderByNameAsc();
         List<GetGroupStationsDto> getGroupStationsDto = new ArrayList<>();
         for (GroupStation gs : groupStations) {
-            List<String> lines = Arrays.asList(gs.getLines().split(","));
-                    GetGroupStationsDto getGroupStationDto = new GetGroupStationsDto(gs.getId(), gs.getName(), gs.getUrlName(), lines);
+            String[] linesSplit = gs.getLines().split(",");
+            List<Line> lines = new ArrayList<>(Collections.emptyList());
+            for (String line : linesSplit) {
+                lines.add(new Line(line));
+            }
+            GetGroupStationsDto getGroupStationDto = new GetGroupStationsDto(gs.getId(), gs.getName(), gs.getUrlName(), lines);
             getGroupStationsDto.add(getGroupStationDto);
         }
         return getGroupStationsDto;
@@ -88,10 +93,11 @@ public class GroupStationService {
                 groupStation.setLines(route.getLine());
                 groupStationRepository.save(groupStation);
             } else if (!groupStation.getLines().contains(route.getLine())) {
-                System.out.println(groupStation.getLines()+","+route.getLine());
                 groupStation.setLines(groupStation.getLines()+","+route.getLine());
                 groupStationRepository.save(groupStation);
             }
         }
     }
+
+
 }

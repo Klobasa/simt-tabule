@@ -6,6 +6,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.List;
 
@@ -69,7 +70,8 @@ public class RouteService {
                 routeRepository.save(new Route(splitRoute[0], splitRoute[1], j, stops[j], soucetSpicka, soucetSedlo, soucetNoc));
             }
         }
-        timesService.saveTime(new Times("routesLoaded", LocalDateTime.now()));
+        timesService.saveTime(new Times("routesApiGenerated", LocalDateTime.parse(splitFullRoute[splitFullRoute.length-1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+        timesService.saveCurrentTime("routesLoaded");
     }
 
     public List<Route> getRoute(String line, String direction) {

@@ -2,7 +2,6 @@ package cz.simt.tabule.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -14,6 +13,7 @@ import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
 
+import cz.simt.tabule.data.Line;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -106,7 +106,7 @@ public class StationService {
             int playerPosition = tripService.getPositionByPlayerId(player.getId());
             int isAtStation = playerPosition == trip.getSequence() ? 1 : 0;
             int timeToDeparture = (int) LocalDateTime.now().until(trip.getTime(), ChronoUnit.MINUTES);
-            String traction = parseInt(player.getLine()) < 20 ? parseInt(player.getLine()) < 10 ? "tram" : "trolleybus" : "bus";
+            Line line = new Line(player.getLine());
             timeToDeparture = player.getDelay() > 0 ? timeToDeparture : timeToDeparture-(player.getDelay()/60);
 
             if (playerPosition <= trip.getSequence() && player.getUpdated().isAfter(LocalDateTime.now().minusMinutes(15)) &&
@@ -115,21 +115,11 @@ public class StationService {
             {
                 int delayInMins = player.getDelay() < 0 ? abs(player.getDelay()/60) : 0;
                 delayInMins = player.getUpdated().isAfter(LocalDateTime.now().minusMinutes(2)) ? delayInMins : -1;
-                GetStationDto getStationDto = new GetStationDto(index++, player.getLine(), player.getRoute(), traction, player.getEndStation(), player.getStation(), trip.getTime().format(DateTimeFormatter.ofPattern("HH:mm")), delayInMins, isAtStation, timeToDeparture);
+                GetStationDto getStationDto = new GetStationDto(index++, player.getLine(), player.getRoute(), line.getTraction(), player.getEndStation(), player.getStation(), trip.getTime().format(DateTimeFormatter.ofPattern("HH:mm")), delayInMins, isAtStation, timeToDeparture);
                 getStationDtos.add(getStationDto);
             }
 
         }
         return getStationDtos;
     }
-
-    private static int parseInt(String text) {
-        try {
-            return Integer.parseInt(text);
-        } catch (NumberFormatException e) {
-            return 100;
-        }
-    }
-
-
 }

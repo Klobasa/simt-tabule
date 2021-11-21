@@ -21,6 +21,10 @@ public class TimesService {
         timesRepository.save(time);
     }
 
+    public void saveCurrentTime(String id) {
+        saveTime(new Times(id, LocalDateTime.now()));
+    }
+
     public LocalDateTime getTimeById(String id) {
         Optional<Times> time = timesRepository.findById(id);
         return time.map(Times::getTime).orElse(null);
