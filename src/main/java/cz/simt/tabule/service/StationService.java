@@ -14,6 +14,8 @@ import java.util.stream.StreamSupport;
 import javax.annotation.PostConstruct;
 
 import cz.simt.tabule.data.Line;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +35,8 @@ public class StationService {
     private final GroupStationService groupStationService;
     private final TripService tripService;
     private final PlayerService playerService;
+
+    private static final Logger logger = LoggerFactory.getLogger("StationService");
 
     @Autowired
     public StationService(ExcelRead excelRead, StationRepository stationRepository, ApiRead apiRead, GroupStationService groupStationService, TripService tripService, PlayerService playerService) {
@@ -70,12 +74,12 @@ public class StationService {
 
     @PostConstruct
     public void getStationList() {
+        logger.info("Loading stations started..");
         String[] split;
         try {
             split = apiRead.readFromUrl("https://simt.cz/server/dispData.php?kod=9b6kqv04wc0");
         } catch (IOException e) {
-            System.out.println("CANNOT LOAD ROUTES, SKIPPING..");
-            e.printStackTrace();
+            logger.error("CANNOT LOAD STATIONS, SKIPPING..\n" + e.getMessage());
             return;
         }
 
@@ -92,6 +96,7 @@ public class StationService {
                 .stream(stationRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
         groupStationService.createGroupedStations(stationList);
+        logger.info("Loading stations DONE.");
     }
 
 

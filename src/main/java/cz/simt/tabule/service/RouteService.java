@@ -13,6 +13,8 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import cz.simt.tabule.data.Times;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,7 @@ public class RouteService {
     private final RouteRepository routeRepository;
     private final ApiRead apiRead;
     private final TimesService timesService;
+    private static final Logger logger = LoggerFactory.getLogger("RouteService");
 
     @Autowired
     public RouteService(RouteRepository routesRepository, ApiRead apiRead, TimesService timesService) {
@@ -34,12 +37,12 @@ public class RouteService {
 
     @PostConstruct
     public void routes() {
+        logger.info("Loading routes started..");
         String[] splitFullRoute;
         try {
             splitFullRoute = apiRead.readFromUrl("https://simt.cz/server/dispData.php?kod=oohq1d8");
         } catch (IOException e) {
-            System.out.println("CANNOT LOAD ROUTES, SKIPPING..");
-            e.printStackTrace();
+            logger.error("CANNOT LOAD ROUTES, SKIPPING..\n" + e.getMessage());
             return;
         }
 
@@ -50,16 +53,6 @@ public class RouteService {
             String[] timeSedlo = splitRoute[3].split(":");
             String[] timeNoc = splitRoute[4].split(":");
             String[] stops = splitRoute[5].split(":");
-            /*
-            for (int j = 0; i<stops.length; i++) {
-                if (splitRoute[0].length() == 1) {
-                    stops[j] += ":2";
-                } else {
-                    stops[j] += ":0";
-                }
-            }
-
-             */
 
             routeRepository.save(new Route(splitRoute[0], splitRoute[1], 0, stops[0], soucetSpicka, soucetSedlo, soucetNoc));
 
@@ -72,6 +65,7 @@ public class RouteService {
         }
         timesService.saveTime(new Times("routesApiGenerated", LocalDateTime.parse(splitFullRoute[splitFullRoute.length-1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
         timesService.saveCurrentTime("routesLoaded");
+        logger.info("Loading routes DONE.");
     }
 
     public List<Route> getRoute(String line, String direction) {

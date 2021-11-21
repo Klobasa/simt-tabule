@@ -7,32 +7,33 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Base64;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import com.zaxxer.hikari.HikariConfig;
 
 @Service
 public class ApiRead {
+    private static final Logger logger = LoggerFactory.getLogger("ApiRead");
 
     public String[] readFromUrl(String url) throws IOException {
-        System.out.println("Client, request");
+        logger.debug("Client, request");
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .build();
 
-        System.out.println("Response");
+        logger.debug("Response");
         HttpResponse<String> response = null;
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
             throw new IOException(e);
         }
-        System.out.println("Decode");
+        logger.debug("Decode");
         assert response != null;
         byte[] decodedBytes = Base64.getMimeDecoder().decode(response.body());
         String decodedResponse = new String(decodedBytes);
-        System.out.println("Return");
+        logger.debug("Return");
         return decodedResponse.split("\\|");
     }
 }

@@ -16,6 +16,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import cz.simt.tabule.dto.GetPlayerIdDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,38 +29,26 @@ import cz.simt.tabule.repository.PlayerRepository;
 @Service
 @EnableScheduling
 public class PlayerService {
-    private RawDataService rawDataService;
     private final TripService tripService;
     private final PlayerRepository playerRepository;
-  //  private final StationService stationService;
+    private final GroupStationService groupStationService;
     private final ApiRead apiRead;
+    private static final Logger logger = LoggerFactory.getLogger("PlayerService");
 
     @Autowired
-    public PlayerService(RawDataService rawDataService, TripService tripService, PlayerRepository playerRepository,
-                        // StationService stationService,
-                         ApiRead apiRead) {
-        this.rawDataService = rawDataService;
+    public PlayerService(TripService tripService, PlayerRepository playerRepository,
+                         GroupStationService groupStationService, ApiRead apiRead) {
         this.tripService = tripService;
         this.playerRepository = playerRepository;
-      //  this.stationService = stationService;
+        this.groupStationService = groupStationService;
         this.apiRead = apiRead;
     }
 
     @Scheduled(fixedRate=31000)
     public void loadPlayers() {
-        System.out.println(LocalDateTime.now() + " Loading players started...");
+        logger.info("Loading players started..");
 
-        /*
-        List<Player> players = rawDataService.getData();
-        for (int i = 0; i<players.size(); i++) {
-            if (players.get(i).getTime() == null) {
-                players.remove(i);
-                i--;
-            }
-        }
-
-         */
-        System.out.println(LocalDateTime.now() + " Download players started..");
+        logger.info("Download players started..");
         String[] stringPlayer;
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
         Future<String[]> future = executor.submit(() -> apiRead.readFromUrl("https://simt.cz/server/dispData.php?kod=v5sov3b75sd"));
@@ -66,14 +56,14 @@ public class PlayerService {
             stringPlayer = future.get(5, TimeUnit.SECONDS);
         } catch (TimeoutException ex) {
             future.cancel(true);
-            System.out.println(LocalDateTime.now() + " Response Timeout.");
+            logger.error("Download players RESPONSE TIMEOUT. Skipping..\n" + ex.getMessage());
             return;
         } catch (InterruptedException | ExecutionException e) {
-            System.out.println("CANNOT LOAD PLAYERS, SKIPPING..");
+            logger.error("CANNOT LOAD PLAYERS, SKIPPING..\n" + e.getMessage());
             e.printStackTrace();
             return;
         }
-        System.out.println(LocalDateTime.now() + " Download players DONE.");
+        logger.info("Download players DONE.");
 
         playerRepository.uncheckPlayers();
         LocalTime time = LocalTime.now();
@@ -91,9 +81,8 @@ public class PlayerService {
                         playerDb.setTime(player.getTime());
                         tripService.unsetPosition(playerDb.getId());
                         tripService.setPosition(playerDb.getId(), playerDb.getStation());
-                        System.out.println(LocalDateTime.now() + " Set player (" + playerDb.getId() + ") " + playerDb.getRoute() + " position: " +
-                                //stationService.findStationName((long) playerDb.getStation(), playerDb.getLine())+
-                                " (" + playerDb.getStation() + ") at " + playerDb.getTime());
+                        logger.debug("Set player " + playerDb.getId() + " " + playerDb.getRoute() + " position "
+                                + groupStationService.getGroupStationById(playerDb.getStation()).getName() + " (" + playerDb.getStation() + ") at " + playerDb.getTime());
                     }
                     if (!Objects.equals(playerDb.getStation(), player.getStation()) || playerDb.getDelay() != player.getDelay()) {
                         playerDb.setUpdated(LocalDateTime.now());
@@ -108,7 +97,7 @@ public class PlayerService {
                     player.setEndStation(tripService.getLastStation(player.getId()));
                     playerRepository.save(player);
                     tripService.setPosition(player.getId(), player.getStation());
-                    System.out.println(LocalDateTime.now() + " Save new player: " + stringPlayer[i]);
+                    logger.debug("Save new player: " + stringPlayer[i]);
                 }
             }
         }
@@ -116,12 +105,10 @@ public class PlayerService {
         for (Player deletePlayer : uncheckPlayers) {
             tripService.deleteTrip(deletePlayer.getId());
             playerRepository.delete(deletePlayer);
-            System.out.println(LocalDateTime.now() + " Delete player: " + deletePlayer.getId());
+            logger.debug("Delete player: " + deletePlayer.getId());
         }
 
-        System.out.println(LocalDateTime.now() + " Loading players ENDED.");
-        System.out.println(LocalDateTime.now() + " =================================");
-        System.out.println();
+        logger.info("Loading players DONE.\n=================================\n\n");
     }
 
     private Player createPlayerFromPattern(String player) {
@@ -136,9 +123,7 @@ public class PlayerService {
             try {
                 return new Player(getPlayerIdFromPattern(player), sp[0], sp[1], sp[5], startTime, getTimeFromDelay(sp[4]), sp[7], sp[2], Integer.parseInt(sp[4]), LocalDateTime.now());
             } catch (Exception e) {
-                System.out.println("");
-                System.out.println("Error creating player " + player);
-                e.printStackTrace();
+                logger.error("Error creating player " + player + " " + e.getMessage());
                 return null;
             }
         } else {
