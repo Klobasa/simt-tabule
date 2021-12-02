@@ -19,4 +19,8 @@ public interface RouteRepository extends CrudRepository<Route, Long> {
     @Transactional
     @Query("SELECT r FROM Route r WHERE LENGTH(r.direction) = 1")
     List<Route> findAllRoutesWithoutDepot();
+
+    @Transactional
+    @Query(value = "SELECT CASE WHEN EXISTS (SELECT r.line FROM Route r WHERE r.line = ?1 GROUP BY r.line) THEN 1 ELSE 0 END", nativeQuery = true)
+    int countRoute(String line);
 }

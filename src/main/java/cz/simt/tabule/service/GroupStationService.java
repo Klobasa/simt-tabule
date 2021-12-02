@@ -63,11 +63,14 @@ public class GroupStationService {
         Iterable<GroupStation> groupStations = groupStationRepository.findAllByOrderByNameAsc();
         List<GetGroupStationsDto> getGroupStationsDto = new ArrayList<>();
         for (GroupStation gs : groupStations) {
-            String[] linesSplit = gs.getLines().split(",");
             List<Line> lines = new ArrayList<>(Collections.emptyList());
-            for (String line : linesSplit) {
-                lines.add(new Line(line));
+            if (gs.getLines() != null) {
+                String[] linesSplit = gs.getLines().split(",");
+                for (String line : linesSplit) {
+                    lines.add(new Line(line));
+                }
             }
+
             GetGroupStationsDto getGroupStationDto = new GetGroupStationsDto(gs.getId(), gs.getName(), gs.getUrlName(), lines);
             getGroupStationsDto.add(getGroupStationDto);
         }
@@ -86,7 +89,7 @@ public class GroupStationService {
         List<Route> routes = routeService.getRoutesWithoutDepot();
 
         for (Route route : routes) {
-            String stationIdWithTraction = route.getLine().length() == 1 ? route.getStation() + ":2" : route.getStation() + ":0";
+            String stationIdWithTraction = (determineTraction(route.getLine())) ? route.getStation() + ":2" : route.getStation() + ":0";
             GroupStation groupStation = getGroupStationById(stationIdWithTraction);
 
             if (groupStation.getLines() == null || groupStation.getLines().isEmpty()) {
@@ -97,6 +100,26 @@ public class GroupStationService {
                 groupStationRepository.save(groupStation);
             }
         }
+    }
+
+    /**
+     *
+     * @return true if tram, otherwise false
+     */
+    public boolean determineTraction(String line) {
+        return isInteger(line) && line.length() == 1;
+    }
+
+    private static boolean isInteger(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            double d = Integer.parseInt(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 
 

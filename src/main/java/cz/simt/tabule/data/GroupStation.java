@@ -11,7 +11,7 @@ public class GroupStation {
     private String name;
     private String ids;
     private String urlName;
-    private String lines = "";
+    private String lines;
 
     public GroupStation() {
 

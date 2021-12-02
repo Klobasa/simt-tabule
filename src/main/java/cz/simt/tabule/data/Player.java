@@ -152,7 +152,7 @@ public class Player {
 
     @Override
     public String toString() {
-        return "Player [id=" + id + ", nick=" + nick + ", route=" + route + ", time=" + time + "]";
+        return "Player [id=" + id + ", nick=" + nick + ", line=" + line + "route=" + route + ", startTime=" + startTime + "]";
     }
 
     @Override

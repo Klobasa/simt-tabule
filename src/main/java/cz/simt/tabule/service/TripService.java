@@ -43,7 +43,7 @@ public class TripService {
                 time = time.plusMinutes(s.getTime_sedlo());
 
             }
-            if (player.getLine().length() == 1) {
+            if (groupStationService.determineTraction(player.getLine())) {
                 tripRepository.save(new Trip(s.getSequence(), player.getId(), s.getStation() + ":2", time));
             } else {
                 tripRepository.save(new Trip(s.getSequence(), player.getId(), s.getStation() + ":0", time));

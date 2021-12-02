@@ -75,4 +75,8 @@ public class RouteService {
     public List<Route> getRoutesWithoutDepot() {
         return routeRepository.findAllRoutesWithoutDepot();
     }
+
+    public boolean lineExist(String line) {
+        return routeRepository.countRoute(line) > 0;
+    }
 }
