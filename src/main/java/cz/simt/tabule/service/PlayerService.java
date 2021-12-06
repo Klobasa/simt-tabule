@@ -160,6 +160,7 @@ public class PlayerService {
     }
 
     public List<GetPlayerIdDto> getAllPlayersId() {
+        loadPlayerWhenInactive();
         List<String> playersId = playerRepository.findAllPlayersId();
         List<GetPlayerIdDto> playersIdDto = new ArrayList<>();
         int cnt = 0;
@@ -169,5 +170,15 @@ public class PlayerService {
         }
 
         return playersIdDto;
+    }
+
+    private boolean loadPlayerWhenInactive() {
+        if (timesService.getTimeById("pageLoaded").minusMinutes(5).isAfter(LocalDateTime.now())) {
+            loadPlayers();
+            timesService.saveCurrentTime("pageLoaded");
+            return true;
+        }
+        timesService.saveCurrentTime("pageLoaded");
+        return false;
     }
 }

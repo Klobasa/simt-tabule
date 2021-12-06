@@ -26,17 +26,19 @@ public class StationController {
     }
 
     @GetMapping("/zastavky")
-    @CrossOrigin(origins = "http://localhost:8081")
+    @CrossOrigin(origins = "https://klobasa.github.io/")
     public @ResponseBody String getListOfStations() {
+        timesService.saveCurrentTime("pageLoaded");
         return new JSONObject()
                 .put("stations", groupStationService.getListOfStations())
                 .toString();
     }
 
     @GetMapping("/zastavky/{stationUrlName}")
-    @CrossOrigin(origins = "http://localhost:8081")
+    @CrossOrigin(origins = "https://klobasa.github.io/")
     public @ResponseBody String getStationData(@PathVariable final String stationUrlName) {
         timesService.saveCurrentTime("stationCalled");
+        timesService.saveCurrentTime("pageLoaded");
         return new JSONObject()
                 .put("stationName", groupStationService.getGroupStationNameByUrlName(stationUrlName))
                 .put("departures", stationService.getStationInfo(stationUrlName))

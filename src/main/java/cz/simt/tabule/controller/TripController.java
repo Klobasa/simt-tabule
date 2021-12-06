@@ -25,9 +25,10 @@ public class TripController {
     }
 
     @GetMapping("/spoj/{playerId}")
-    @CrossOrigin(origins = "http://localhost:8081")
+    @CrossOrigin(origins = "https://klobasa.github.io/")
     public @ResponseBody String getFullTrip(@PathVariable final String playerId) {
         timesService.saveCurrentTime("tripCalled");
+        timesService.saveCurrentTime("pageLoaded");
         return new JSONObject()
                 .put("line", playerService.getPlayerFromId(playerId).getLine())
                 .put("endStation", tripService.getLastStation(playerId))

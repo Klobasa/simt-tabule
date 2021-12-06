@@ -30,5 +30,4 @@ public class TimesService {
         return time.map(Times::getTime).orElse(null);
 
     }
-
 }
