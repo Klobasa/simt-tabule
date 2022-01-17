@@ -3,11 +3,18 @@ package cz.simt.tabule.service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import cz.simt.tabule.data.Line;
 import cz.simt.tabule.dto.GetFullTripDto;
+import cz.simt.tabule.dto.GetPlayerIdDto;
+import cz.simt.tabule.dto.GetTripHeaderDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import cz.simt.tabule.data.Player;
@@ -20,12 +27,15 @@ public class TripService {
     private final TripRepository tripRepository;
     private final RouteService routeService;
     private final GroupStationService groupStationService;
+    private final PlayerService playerService;
+    private static final Logger logger = LoggerFactory.getLogger("TripService");
 
     @Autowired
-    public TripService(TripRepository tripRepository, RouteService routeService, GroupStationService groupStationService) {
+    public TripService(TripRepository tripRepository, RouteService routeService, GroupStationService groupStationService, @Lazy PlayerService playerService) {
         this.tripRepository = tripRepository;
         this.routeService = routeService;
         this.groupStationService = groupStationService;
+        this.playerService = playerService;
     }
 
     public void loadTrip(Player player) {
@@ -53,6 +63,23 @@ public class TripService {
 
     }
 
+    public List<GetTripHeaderDto> getTripHeader() {
+        List<GetPlayerIdDto> playersId = playerService.getAllPlayersId();
+        List<GetTripHeaderDto> tripsHeader = new ArrayList<>();
+
+        for (GetPlayerIdDto playerId : playersId) {
+            GetTripHeaderDto tripHeader = new GetTripHeaderDto();
+            tripHeader.setId(playerId.getPlayerId());
+            tripHeader.setLine(new Line(playerService.getPlayerFromId(playerId.getPlayerId()).getLine()));
+            tripHeader.setStartStation(getFirstStation(playerId.getPlayerId()));
+            tripHeader.setEndStation(getLastStation(playerId.getPlayerId()));
+            tripHeader.setActualStation(getCurrentStopByPlayerId(playerId.getPlayerId()));
+            tripHeader.setDepartureFromActualStation(getDepartureFromCurrentStopByPlayerId(playerId.getPlayerId()));
+            tripsHeader.add(tripHeader);
+        }
+        return tripsHeader;
+    }
+
     public List<GetFullTripDto> getFullTrip(String id) {
         List<Trip> tripInfo = tripRepository.findByPlayerIdEqualsOrderBySequenceAsc(id);
         List<GetFullTripDto> tripDto = new ArrayList<>();
@@ -63,8 +90,23 @@ public class TripService {
         return tripDto;
     }
 
+    public String getFirstStation(String playerId) {
+        try {
+            return groupStationService.getGroupStationById(tripRepository.findFirstByPlayerIdOrderBySequenceAsc(playerId).getStopId()).getName();
+        } catch (NullPointerException e) {
+            logger.error("Cannot load firstStation for: " + playerId + "\n" + e);
+            return "";
+        }
+
+    }
+
     public String getLastStation(String playerId) {
-        return groupStationService.getGroupStationById(tripRepository.findFirstByPlayerIdOrderBySequenceDesc(playerId).getStopId()).getName();
+        try {
+            return groupStationService.getGroupStationById(tripRepository.findFirstByPlayerIdOrderBySequenceDesc(playerId).getStopId()).getName();
+        } catch (NullPointerException e) {
+            logger.error("Cannot load lastStation for: " + playerId + "\n" + e);
+            return "";
+        }
     }
 
     public void unsetPosition(String playerId) {
@@ -87,5 +129,18 @@ public class TripService {
     public int getPositionByPlayerId(String playerId) {
         Optional<Integer> i = tripRepository.findSequenceByAPlayerId(playerId);
         return i.orElse(0);
+    }
+
+    private String getCurrentStopByPlayerId(String playerId) {
+        Optional<String> i = tripRepository.findActualStation(playerId);
+        if(i.isPresent()) {
+            return groupStationService.getGroupStationById(i.get()).getName();
+        }
+        return "";
+    }
+
+    private LocalDateTime getDepartureFromCurrentStopByPlayerId(String playerId) {
+        Optional<LocalDateTime> i = tripRepository.findActualDeparture(playerId);
+        return i.orElse(null);
     }
 }

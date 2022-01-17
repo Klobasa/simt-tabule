@@ -24,8 +24,29 @@ public class TripController {
         this.timesService = timesService;
     }
 
+    /**
+    @GetMapping("/spoj")
+    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
+    public @ResponseBody String getTripList() {
+        timesService.saveCurrentTime("tripCalled");
+        timesService.saveCurrentTime("pageLoaded");
+
+    }
+     */
+
+    @GetMapping("/spoj")
+    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
+    public @ResponseBody String getTripList() {
+        timesService.saveCurrentTime("tripCalled");
+        timesService.saveCurrentTime("pageLoaded");
+        return new JSONObject()
+                .put("tripHeader", tripService.getTripHeader())
+                .toString();
+
+    }
+
     @GetMapping("/spoj/{playerId}")
-    @CrossOrigin(origins = "https://klobasa.github.io/")
+    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
     public @ResponseBody String getFullTrip(@PathVariable final String playerId) {
         timesService.saveCurrentTime("tripCalled");
         timesService.saveCurrentTime("pageLoaded");

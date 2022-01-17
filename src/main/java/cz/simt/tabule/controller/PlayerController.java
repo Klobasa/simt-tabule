@@ -18,7 +18,7 @@ public class PlayerController {
     }
 
     @GetMapping("/playersId")
-    @CrossOrigin(origins = "https://klobasa.github.io/")
+    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
     public @ResponseBody String getPlayersId() {
         return new JSONObject()
                 .put("players", playerService.getAllPlayersId())

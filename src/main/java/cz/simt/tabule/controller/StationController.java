@@ -26,7 +26,7 @@ public class StationController {
     }
 
     @GetMapping("/zastavky")
-    @CrossOrigin(origins = "https://klobasa.github.io/")
+    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
     public @ResponseBody String getListOfStations() {
         timesService.saveCurrentTime("pageLoaded");
         return new JSONObject()
@@ -35,7 +35,7 @@ public class StationController {
     }
 
     @GetMapping("/zastavky/{stationUrlName}")
-    @CrossOrigin(origins = "https://klobasa.github.io/")
+    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
     public @ResponseBody String getStationData(@PathVariable final String stationUrlName) {
         timesService.saveCurrentTime("stationCalled");
         timesService.saveCurrentTime("pageLoaded");

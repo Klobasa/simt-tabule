@@ -1,5 +1,6 @@
 package cz.simt.tabule.repository;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -36,5 +37,17 @@ public interface TripRepository extends CrudRepository<Trip, Long> {
 
     List<Trip> findByPlayerIdEqualsOrderBySequenceAsc(String id);
 
+    //Last stop
     Trip findFirstByPlayerIdOrderBySequenceDesc(String id);
+
+    //First stop
+    Trip findFirstByPlayerIdOrderBySequenceAsc(String id);
+
+    @Transactional
+    @Query("SELECT t.stopId from Trip t WHERE t.playerId = ?1 AND t.position = true")
+    Optional<String> findActualStation(String id);
+
+    @Transactional
+    @Query("SELECT t.time from Trip t WHERE t.playerId = ?1 AND t.position = true")
+    Optional<LocalDateTime> findActualDeparture(String id);
 }
