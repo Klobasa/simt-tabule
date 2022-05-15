@@ -15,6 +15,7 @@ public class Trip {
     private int sequence;
     private String playerId;
     private String stopId;
+    private String stopName;
     private LocalDateTime time;
     private boolean position = false;
 
@@ -35,6 +36,10 @@ public class Trip {
         return stopId;
     }
 
+    public String getStopName() {
+        return stopName;
+    }
+
     public String getPlayerId() {
         return playerId;
     }
@@ -49,6 +54,10 @@ public class Trip {
 
     public void setStopId(final String stopId) {
         this.stopId = stopId;
+    }
+
+    public void setStopName(String stopName) {
+        this.stopName = stopName;
     }
 
     public void setTime(final LocalDateTime time) {

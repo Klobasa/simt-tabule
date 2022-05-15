@@ -1,6 +1,6 @@
 package cz.simt.tabule.data;
 
-public class Line {
+public class Line implements Comparable<Line> {
     private String line;
     private String traction;
 
@@ -27,5 +27,16 @@ public class Line {
         } catch (NumberFormatException e) {
             return 100;
         }
+    }
+
+    @Override
+    public int compareTo(Line o) {
+        if (getLine() == null || o.getLine() == null) {
+            return 0;
+        }
+        if (getLine().length() == o.getLine().length()) {
+            return getLine().compareTo(o.getLine());
+        }
+        return getLine().length() - o.getLine().length();
     }
 }

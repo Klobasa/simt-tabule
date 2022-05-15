@@ -50,4 +50,8 @@ public interface TripRepository extends CrudRepository<Trip, Long> {
     @Transactional
     @Query("SELECT t.time from Trip t WHERE t.playerId = ?1 AND t.position = true")
     Optional<LocalDateTime> findActualDeparture(String id);
+
+    @Transactional
+    @Query("SELECT t.playerId FROM Trip t GROUP BY t.playerId")
+    List<String> findAllPlayersInTrip();
 }

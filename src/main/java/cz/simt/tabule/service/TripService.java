@@ -3,12 +3,11 @@ package cz.simt.tabule.service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 import cz.simt.tabule.data.Line;
-import cz.simt.tabule.dto.GetFullTripDto;
+import cz.simt.tabule.dto.GetTripDto;
 import cz.simt.tabule.dto.GetPlayerIdDto;
 import cz.simt.tabule.dto.GetTripHeaderDto;
 import org.slf4j.Logger;
@@ -67,46 +66,68 @@ public class TripService {
         List<GetPlayerIdDto> playersId = playerService.getAllPlayersId();
         List<GetTripHeaderDto> tripsHeader = new ArrayList<>();
 
-        for (GetPlayerIdDto playerId : playersId) {
+        for (GetPlayerIdDto pId : playersId) {
+            String playerId = pId.getPlayerId();
             GetTripHeaderDto tripHeader = new GetTripHeaderDto();
-            tripHeader.setId(playerId.getPlayerId());
-            tripHeader.setLine(new Line(playerService.getPlayerFromId(playerId.getPlayerId()).getLine()));
-            tripHeader.setStartStation(getFirstStation(playerId.getPlayerId()));
-            tripHeader.setEndStation(getLastStation(playerId.getPlayerId()));
-            tripHeader.setActualStation(getCurrentStopByPlayerId(playerId.getPlayerId()));
-            tripHeader.setDepartureFromActualStation(getDepartureFromCurrentStopByPlayerId(playerId.getPlayerId()));
+            tripHeader.setId(playerId);
+            tripHeader.setLine(new Line(playerService.getPlayerFromId(playerId).getLine()));
+            tripHeader.setStartStation(getFirstStation(playerId));
+            tripHeader.setEndStation(getLastStation(playerId));
+            tripHeader.setActualStation(getActualStationFromPlayerTable(playerId));
+            tripHeader.setDepartureFromActualStation(getDepartureFromCurrentStopByPlayerId(playerId));
             tripsHeader.add(tripHeader);
         }
         return tripsHeader;
     }
 
-    public List<GetFullTripDto> getFullTrip(String id) {
+    public List<GetTripDto> getFullTrip(String id) {
         List<Trip> tripInfo = tripRepository.findByPlayerIdEqualsOrderBySequenceAsc(id);
-        List<GetFullTripDto> tripDto = new ArrayList<>();
+        List<GetTripDto> tripDto = new ArrayList<>();
 
         for (Trip trip : tripInfo) {
-            tripDto.add(new GetFullTripDto(groupStationService.getGroupStationById(trip.getStopId()).getName(), trip.getSequence(), trip.getPosition() ? 1 : 0, trip.getTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
+            tripDto.add(new GetTripDto(groupStationService.getGroupStationById(trip.getStopId()).getName(), trip.getSequence(), trip.getPosition() ? 1 : 0, trip.getTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
         }
         return tripDto;
     }
 
-    public String getFirstStation(String playerId) {
+    public GetTripDto getFirstStation(String playerId) {
         try {
-            return groupStationService.getGroupStationById(tripRepository.findFirstByPlayerIdOrderBySequenceAsc(playerId).getStopId()).getName();
+            Trip fs = tripRepository.findFirstByPlayerIdOrderBySequenceAsc(playerId);
+            return new GetTripDto(groupStationService.getGroupStationById(fs.getStopId()).getName(), fs.getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
         } catch (NullPointerException e) {
             logger.error("Cannot load firstStation for: " + playerId + "\n" + e);
-            return "";
+            return new GetTripDto();
         }
 
     }
 
-    public String getLastStation(String playerId) {
+    public GetTripDto getLastStation(String playerId) {
         try {
-            return groupStationService.getGroupStationById(tripRepository.findFirstByPlayerIdOrderBySequenceDesc(playerId).getStopId()).getName();
+            Trip ls = tripRepository.findFirstByPlayerIdOrderBySequenceDesc(playerId);
+            return new GetTripDto(groupStationService.getGroupStationById(ls.getStopId()).getName(), ls.getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
         } catch (NullPointerException e) {
             logger.error("Cannot load lastStation for: " + playerId + "\n" + e);
-            return "";
+            return new GetTripDto();
         }
+    }
+
+    public GetTripDto getActualStation(String playerId) {
+        String as = getCurrentStopByPlayerId(playerId);
+        LocalDateTime ast = getDepartureFromCurrentStopByPlayerId(playerId);
+        if (!as.isEmpty() && ast != null) {
+            return  new GetTripDto(as, ast.format(DateTimeFormatter.ofPattern("HH:mm")));
+        } else {
+            return new GetTripDto();
+        }
+    }
+
+    private GetTripDto getActualStationFromPlayerTable(String playerId) {
+        GetTripDto tripDto = new GetTripDto();
+        LocalDateTime ast = getDepartureFromCurrentStopByPlayerId(playerId);
+        String asId = playerService.getPlayerFromId(playerId).getStation();
+        tripDto.setStation(asId != null ? groupStationService.getGroupStationById(asId).getName() : null);
+        tripDto.setDeparture(ast != null ? ast.format(DateTimeFormatter.ofPattern("HH:mm")) : null);
+        return tripDto;
     }
 
     public void unsetPosition(String playerId) {

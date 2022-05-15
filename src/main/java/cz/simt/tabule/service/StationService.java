@@ -11,15 +11,12 @@ import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
 
-import cz.simt.tabule.data.Line;
+import cz.simt.tabule.data.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cz.simt.tabule.data.Player;
-import cz.simt.tabule.data.Station;
-import cz.simt.tabule.data.Trip;
 import cz.simt.tabule.dto.GetStationDto;
 import cz.simt.tabule.repository.StationRepository;
 
@@ -32,16 +29,19 @@ public class StationService {
     private final GroupStationService groupStationService;
     private final TripService tripService;
     private final PlayerService playerService;
+    private final TimesService timesService;
 
     private static final Logger logger = LoggerFactory.getLogger("StationService");
 
     @Autowired
-    public StationService(StationRepository stationRepository, ApiRead apiRead, GroupStationService groupStationService, TripService tripService, PlayerService playerService) {
+    public StationService(StationRepository stationRepository, ApiRead apiRead, GroupStationService groupStationService,
+                          TripService tripService, PlayerService playerService, TimesService timesService) {
         this.stationRepository = stationRepository;
         this.apiRead = apiRead;
         this.groupStationService = groupStationService;
         this.tripService = tripService;
         this.playerService = playerService;
+        this.timesService = timesService;
     }
 
     @PostConstruct
@@ -68,6 +68,9 @@ public class StationService {
                 .stream(stationRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
         groupStationService.createGroupedStations(stationList);
+
+        timesService.saveTime(new Times("stationsJsonGenerated", LocalDateTime.parse(split[split.length-1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+        timesService.saveCurrentTime("stationsLoaded");
         logger.info("Loading stations DONE.");
     }
 

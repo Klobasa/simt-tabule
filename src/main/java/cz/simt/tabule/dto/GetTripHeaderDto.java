@@ -9,14 +9,14 @@ import java.time.LocalDateTime;
 public class GetTripHeaderDto {
     private String id;
     private Line line;
-    private String startStation;
-    private String endStation;
-    private String actualStation;
+    private GetTripDto startStation;
+    private GetTripDto endStation;
+    private GetTripDto actualStation;
     private LocalDateTime departureFromActualStation;
 
     public GetTripHeaderDto() {}
 
-    public GetTripHeaderDto(String id, Line line, String startStation, String endStation, String actualStation, LocalDateTime departureFromActualStation) {
+    public GetTripHeaderDto(String id, Line line, GetTripDto startStation, GetTripDto endStation, GetTripDto actualStation, LocalDateTime departureFromActualStation) {
         this.id = id;
         this.line = line;
         this.startStation = startStation;
@@ -41,27 +41,27 @@ public class GetTripHeaderDto {
         this.line = line;
     }
 
-    public String getStartStation() {
+    public GetTripDto getStartStation() {
         return startStation;
     }
 
-    public void setStartStation(String startStation) {
+    public void setStartStation(GetTripDto startStation) {
         this.startStation = startStation;
     }
 
-    public String getEndStation() {
+    public GetTripDto getEndStation() {
         return endStation;
     }
 
-    public void setEndStation(String endStation) {
+    public void setEndStation(GetTripDto endStation) {
         this.endStation = endStation;
     }
 
-    public String getActualStation() {
+    public GetTripDto getActualStation() {
         return actualStation;
     }
 
-    public void setActualStation(String actualStation) {
+    public void setActualStation(GetTripDto actualStation) {
         this.actualStation = actualStation;
     }
 

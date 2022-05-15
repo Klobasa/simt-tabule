@@ -63,7 +63,7 @@ public class RouteService {
                 routeRepository.save(new Route(splitRoute[0], splitRoute[1], j, stops[j], soucetSpicka, soucetSedlo, soucetNoc));
             }
         }
-        timesService.saveTime(new Times("routesApiGenerated", LocalDateTime.parse(splitFullRoute[splitFullRoute.length-1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+        timesService.saveTime(new Times("routesJsonGenerated", LocalDateTime.parse(splitFullRoute[splitFullRoute.length-1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
         timesService.saveCurrentTime("routesLoaded");
         logger.info("Loading routes DONE.");
     }
