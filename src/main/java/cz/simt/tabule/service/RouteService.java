@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
@@ -16,6 +17,7 @@ import cz.simt.tabule.data.Times;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import cz.simt.tabule.data.Route;
@@ -36,14 +38,21 @@ public class RouteService {
     }
 
     @PostConstruct
+    @Scheduled(cron = "0 0 8 * * *") // 8 o'clock of every day.)
     public void routes() {
         logger.info("Loading routes started..");
-        String[] splitFullRoute;
-        try {
-            splitFullRoute = apiRead.readFromUrl("https://simt.cz/server/dispData.php?kod=oohq1d8");
-        } catch (IOException e) {
-            logger.error("CANNOT LOAD ROUTES, SKIPPING..\n" + e.getMessage());
-            return;
+        String[] splitFullRoute = null;
+        while (splitFullRoute == null) {
+            try {
+                splitFullRoute = apiRead.readFromUrl("https://simt.cz/server/dispData.php?kod=oohq1d8");
+            } catch (IOException e) {
+                logger.error("CANNOT LOAD ROUTES, WAITING 10SEC TO ANOTHER TRY..\n" + e.getMessage());
+                try {
+                    TimeUnit.SECONDS.sleep(10);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
 
         for (int i = 0; i < splitFullRoute.length - 1; i++) {

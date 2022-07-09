@@ -8,10 +8,12 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.simt.tabule.data.Trip;
 
+@Repository
 public interface TripRepository extends CrudRepository<Trip, Long> {
 
     @Transactional

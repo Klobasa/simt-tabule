@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -15,6 +16,7 @@ import cz.simt.tabule.data.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import cz.simt.tabule.dto.GetStationDto;
@@ -45,14 +47,21 @@ public class StationService {
     }
 
     @PostConstruct
+    @Scheduled(cron = "0 0 8 * * *") // 8 o'clock of every day.)
     public void getStationList() {
         logger.info("Loading stations started..");
-        String[] split;
-        try {
-            split = apiRead.readFromUrl("https://simt.cz/server/dispData.php?kod=9b6kqv04wc0");
-        } catch (IOException e) {
-            logger.error("CANNOT LOAD STATIONS, SKIPPING..\n" + e.getMessage());
-            return;
+        String[] split = null;
+        while (split == null) {
+            try {
+                split = apiRead.readFromUrl("https://simt.cz/server/dispData.php?kod=9b6kqv04wc0");
+            } catch (IOException e) {
+                logger.error("CANNOT LOAD STATIONS, WAITING 10SEC TO ANOTHER TRY..\n" + e.getMessage());
+                try {
+                    TimeUnit.SECONDS.sleep(10);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
 
         for (int i = 0; i<split.length-1; i++) {
@@ -89,6 +98,7 @@ public class StationService {
             Line line = new Line(player.getLine());
             timeToDeparture = player.getDelay() > 0 ? timeToDeparture : timeToDeparture-(player.getDelay()/60);
 
+            /* Hide player if: is inactive for 15 minutes, delay is bigger than 90 mins or earlier than 120 mins */
             if (playerPosition <= trip.getSequence() && player.getUpdated().isAfter(LocalDateTime.now().minusMinutes(15)) &&
                     trip.getTime().plusMinutes(90).isAfter(LocalDateTime.now()) && //čas po odjezdu
                     trip.getTime().minusMinutes(120).isBefore(LocalDateTime.now()))  //čas před odjezdem
