@@ -1,23 +1,14 @@
 package cz.simt.tabule.service;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-
 import cz.simt.tabule.data.Times;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import cz.simt.tabule.data.Route;
@@ -37,8 +28,6 @@ public class RouteService {
         this.timesService = timesService;
     }
 
-    @PostConstruct
-    @Scheduled(cron = "0 0 8 * * *") // 8 o'clock of every day.)
     public void routes() {
         logger.info("Loading routes started..");
         String[] splitFullRoute = null;
@@ -87,5 +76,13 @@ public class RouteService {
 
     public boolean lineExist(String line) {
         return routeRepository.countRoute(line) > 0;
+    }
+
+    public List<String> getAllLines() {
+        return routeRepository.getAllLines();
+    }
+
+    public List<String> getDirectionsForLine(String line) {
+        return routeRepository.getDirectionForLine(line);
     }
 }

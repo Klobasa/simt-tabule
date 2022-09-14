@@ -46,9 +46,9 @@ public class Route {
 
     public String getStationWithTraction() {
         if (line.length() == 1) {
-            return line + ":2";
+            return station + ":2";
         } else {
-            return line + ":0";
+            return station + ":0";
         }
     }
 

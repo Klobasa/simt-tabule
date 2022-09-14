@@ -32,18 +32,23 @@ public class StationService {
     private final TripService tripService;
     private final PlayerService playerService;
     private final TimesService timesService;
+    private final RouteService routeService;
+    private final TimetableService timetableService;
 
     private static final Logger logger = LoggerFactory.getLogger("StationService");
 
     @Autowired
     public StationService(StationRepository stationRepository, ApiRead apiRead, GroupStationService groupStationService,
-                          TripService tripService, PlayerService playerService, TimesService timesService) {
+                          TripService tripService, PlayerService playerService, TimesService timesService,
+                          RouteService routeService, TimetableService timetableService) {
         this.stationRepository = stationRepository;
         this.apiRead = apiRead;
         this.groupStationService = groupStationService;
         this.tripService = tripService;
         this.playerService = playerService;
         this.timesService = timesService;
+        this.routeService = routeService;
+        this.timetableService = timetableService;
     }
 
     @PostConstruct
@@ -81,6 +86,9 @@ public class StationService {
         timesService.saveTime(new Times("stationsJsonGenerated", LocalDateTime.parse(split[split.length-1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
         timesService.saveCurrentTime("stationsLoaded");
         logger.info("Loading stations DONE.");
+
+        routeService.routes();
+        timetableService.createTimetable();
     }
 
 

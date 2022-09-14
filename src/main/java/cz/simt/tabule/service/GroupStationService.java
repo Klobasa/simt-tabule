@@ -1,7 +1,6 @@
 package cz.simt.tabule.service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import cz.simt.tabule.data.Line;
 import cz.simt.tabule.data.Route;
@@ -9,7 +8,6 @@ import cz.simt.tabule.dto.GetGroupStationsDto;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import cz.simt.tabule.data.GroupStation;
@@ -88,6 +86,13 @@ public class GroupStationService {
         return groupStationRepository.findFirstByUrlName(urlName).getName();
     }
 
+    public String getGroupStationNameById(int id) {
+        return groupStationRepository.findFirstById(id).getName();
+    }
+
+    /**
+     * Přiřazení linek ke stanicím
+     */
     private void setLinesToStations() {
         List<Route> routes = routeService.getRoutesWithoutDepot();
 

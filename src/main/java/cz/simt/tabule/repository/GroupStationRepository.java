@@ -28,4 +28,6 @@ public interface GroupStationRepository extends CrudRepository<GroupStation, Int
     GroupStation findNameByStationId(String id1, String id2, String id3);
 
     GroupStation findFirstByUrlName(String url);
+
+    GroupStation findFirstById(int id);
 }
