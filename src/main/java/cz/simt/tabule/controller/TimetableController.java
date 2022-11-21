@@ -1,6 +1,6 @@
 package cz.simt.tabule.controller;
 
-import cz.simt.tabule.dto.timetable.TimelinesDto;
+import cz.simt.tabule.service.TimesService;
 import cz.simt.tabule.service.TimetableService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,21 +9,23 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.List;
-
 @Controller
 public class TimetableController {
     private final TimetableService timetableService;
+    private final TimesService timesService;
 
     @Autowired
-    public TimetableController(TimetableService timetableService) {
+    public TimetableController(TimetableService timetableService, TimesService timesService) {
         this.timetableService = timetableService;
+        this.timesService = timesService;
     }
 
     @GetMapping("/jizdnidoby")
     @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
     public @ResponseBody String getTimetables() {
-        List<TimelinesDto> a = timetableService.getTimelines();
-        return new JSONObject().put("timelines", a).toString();
+        return new JSONObject()
+                .put("dataGenerated", timesService.getTimeById("routesJsonGenerated"))
+                .put("timelines", timetableService.getTimelines())
+                .toString();
     }
 }

@@ -169,7 +169,7 @@ public class TimetableService {
 
             fullLine.add(new RoutesDto("A", directionA));
             fullLine.add(new RoutesDto("B", directionB));
-            lines.add(new TimelinesDto(routeLine, fullLine));
+            lines.add(new TimelinesDto(routeLine, fullLine, directionA.get(0).getName(), directionA.get(directionA.size()-1).getName()));
         }
         return lines;
     }
