@@ -3,6 +3,7 @@ package cz.simt.tabule.data;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Entity
 public class Timetable {
@@ -11,29 +12,32 @@ public class Timetable {
     private Long id;
 
     private String line;
-    private String direction;
     private int sequence;
     private int group_station;
-    private String time_spicka;
-    private String time_sedlo;
-    private String time_noc;
+    private String time_spicka_A;
+    private String time_sedlo_A;
+    private String time_noc_A;
+    private String time_spicka_B;
+    private String time_sedlo_B;
+    private String time_noc_B;
 
     public Timetable() {
 
     }
 
-    public Timetable(String line, String direction, int group_station, String time_spicka, String time_sedlo, String time_noc) {
+    public Timetable(String line, int group_station, String time_spicka_A, String time_sedlo_A, String time_noc_A, String time_spicka_B, String time_sedlo_B, String time_noc_B) {
         this.line = line;
-        this.direction = direction;
         this.group_station = group_station;
-        this.time_spicka = time_spicka;
-        this.time_sedlo = time_sedlo;
-        this.time_noc = time_noc;
+        this.time_spicka_A = time_spicka_A;
+        this.time_sedlo_A = time_sedlo_A;
+        this.time_noc_A = time_noc_A;
+        this.time_spicka_B = time_spicka_B;
+        this.time_sedlo_B = time_sedlo_B;
+        this.time_noc_B = time_noc_B;
     }
 
     public Timetable(String line, String direction, int group_station) {
         this.line = line;
-        this.direction = direction;
         this.group_station = group_station;
     }
 
@@ -53,14 +57,6 @@ public class Timetable {
         this.line = line;
     }
 
-    public String getDirection() {
-        return direction;
-    }
-
-    public void setDirection(String direction) {
-        this.direction = direction;
-    }
-
     public int getSequence() {
         return sequence;
     }
@@ -77,27 +73,64 @@ public class Timetable {
         this.group_station = group_station;
     }
 
-    public String getTime_spicka() {
-        return time_spicka;
+    public String getTime_spicka_A() {
+        return time_spicka_A;
     }
 
-    public void setTime_spicka(String time_spicka) {
-        this.time_spicka = time_spicka;
+    public void setTime_spicka_A(String time_spicka_A) {
+        this.time_spicka_A = time_spicka_A;
     }
 
-    public String getTime_sedlo() {
-        return time_sedlo;
+    public String getTime_sedlo_A() {
+        return time_sedlo_A;
     }
 
-    public void setTime_sedlo(String time_sedlo) {
-        this.time_sedlo = time_sedlo;
+    public void setTime_sedlo_A(String time_sedlo_A) {
+        this.time_sedlo_A = time_sedlo_A;
     }
 
-    public String getTime_noc() {
-        return time_noc;
+    public String getTime_noc_A() {
+        return time_noc_A;
     }
 
-    public void setTime_noc(String time_noc) {
-        this.time_noc = time_noc;
+    public void setTime_noc_A(String time_noc_A) {
+        this.time_noc_A = time_noc_A;
+    }
+
+    public String getTime_spicka_B() {
+        return time_spicka_B;
+    }
+
+    public void setTime_spicka_B(String time_spicka_B) {
+        this.time_spicka_B = time_spicka_B;
+    }
+
+    public String getTime_sedlo_B() {
+        return time_sedlo_B;
+    }
+
+    public void setTime_sedlo_B(String time_sedlo_B) {
+        this.time_sedlo_B = time_sedlo_B;
+    }
+
+    public String getTime_noc_B() {
+        return time_noc_B;
+    }
+
+    public void setTime_noc_B(String time_noc_B) {
+        this.time_noc_B = time_noc_B;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Timetable timetable = (Timetable) o;
+        return group_station == timetable.group_station && line.equals(timetable.line);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(line, group_station);
     }
 }
