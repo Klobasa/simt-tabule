@@ -8,13 +8,13 @@ import java.util.List;
 @Data
 public class TimelinesDto {
     private String lineNumber;
-    private List<RoutesDto> routes;
+    private List<StationsDto> stations;
     private String startStation;
     private String endStation;
 
-    public TimelinesDto(String lineNumber, List<RoutesDto> routes, String startStation, String endStation) {
+    public TimelinesDto(String lineNumber, List<StationsDto> stations, String startStation, String endStation) {
         this.lineNumber = lineNumber;
-        this.routes = routes;
+        this.stations = stations;
         this.startStation = startStation;
         this.endStation = endStation;
     }

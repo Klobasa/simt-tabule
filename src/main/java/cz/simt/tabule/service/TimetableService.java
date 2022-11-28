@@ -11,8 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class TimetableService {
@@ -36,7 +38,8 @@ public class TimetableService {
 
         for (String line : lines) {
             List<Timetable> directionA = new java.util.ArrayList<>(Collections.emptyList());
-            List<Timetable> directionB = Collections.emptyList();
+            List<Timetable> directionB = new java.util.ArrayList<>(Collections.emptyList());
+            List<Timetable> fullRoute = new java.util.ArrayList<>(Collections.emptyList());
             List<String> directions = routeService.getDirectionsForLine(line);
 
             for (String direction : directions) {
@@ -45,77 +48,169 @@ public class TimetableService {
                 //směr A/C/E/
                 //pokud je znak lichý a dlouhý 1 znak nebo na druhé pozici lichý
                 if (isADirection(direction)) {
-                    directionA = new ArrayList<>(createFullDirection(directionA, routeList, "A"));
+                    directionA = new ArrayList<>(createFullDirection(directionA, routeList, direction));
                 } else if (isBDirection(direction)) {
-                    directionB = new ArrayList<>(createFullDirection(directionB, routeList, "B"));
+                    directionB = new ArrayList<>(createFullDirection(directionB, routeList, direction));
                 } else {
                     logger.warn("Cannot assignee:" + line + "/" + direction);
                 }
             }
+
+            int lineLength = Math.max(directionA.size(), directionB.size());
+
+            for (int i = 0; i< lineLength; i++) {
+                String da = directionA.size()>i ? gss.getGroupStationNameById(directionA.get(i).getGroup_station()) +" ("+directionA.get(i).getGroup_station()+ ")" : "0";
+                String db = directionB.size()>i ? gss.getGroupStationNameById(directionB.get(i).getGroup_station()) +" ("+directionB.get(i).getGroup_station()+ ")" : "0";
+
+                logger.info(line + ": " + da + " - " + db);
+            }
+
+            if (line.equals("61")) {
+                logger.info(line);
+            }
+
+            Collections.reverse(directionB);
+            int index = 0;
+            while (!directionB.isEmpty()) {
+                List<Timetable> finalDirectionA = directionA;
+                List<Timetable> finalDirectionB = directionB;
+
+                int indexOfAStation = IntStream.range(0, finalDirectionA.size())
+                        .filter(o -> finalDirectionA.get(o).getGroup_station() == finalDirectionB.get(0).getGroup_station())
+                        .findFirst().orElse(-1);
+                if (index < directionA.size() && directionA.get(index).getGroup_station() == directionB.get(0).getGroup_station()) {
+                    directionB.remove(0);
+                    index++;
+                } else if (indexOfAStation == -1 || indexOfAStation < index) {
+                    directionA.add(index, directionB.get(0));
+                    directionB.remove(0);
+                    index++;
+                } else {
+                    index++;
+                }
+            }
+            /*
             int indexA = 0, indexB = 0;
+
+            while (indexA < directionA.size()) {
+                if (directionA.get(indexA).equals(directionB.get(indexA))) {
+                 //   logger.info("A: " +line + ": "+ gss.getGroupStationNameById(directionA.get(indexA).getGroup_station()) + " = " + gss.getGroupStationNameById(directionB.get(indexA).getGroup_station()));
+                    indexA++;
+                } else {
+                 //   logger.info("A-" + line + " :  " + gss.getGroupStationNameById(directionA.get(indexA).getGroup_station()) +" ("+directionA.get(indexA).getGroup_station()+ ") != " + gss.getGroupStationNameById(directionB.get(indexA).getGroup_station())+" ("+directionB.get(indexA).getGroup_station()+ ")");
+                    directionA.add(indexA, directionB.get(indexA));
+                }
+            }
+
+            while (indexB < directionB.size()) {
+                if (directionB.get(indexB).equals(directionA.get(indexB))) {
+                 //   logger.info("B: " +line + ": "+ gss.getGroupStationNameById(directionA.get(indexB).getGroup_station()) + " = " + gss.getGroupStationNameById(directionB.get(indexB).getGroup_station()));
+                    indexB++;
+                } else {
+                 //   logger.info("B-" + line + " :  " + gss.getGroupStationNameById(directionA.get(indexB).getGroup_station()) +" ("+directionA.get(indexA).getGroup_station()+ ") != " + gss.getGroupStationNameById(directionB.get(indexB).getGroup_station())+" ("+directionB.get(indexA).getGroup_station()+ ")");
+                    directionB.add(indexB, directionA.get(indexB));
+
+                }
+            }
+
+            if (directionA.equals(directionB)) {
+                logger.info("Linka " + line + " OK.");
+            }
+*/
             for (String direction : directions) {
 
                 List<Route> routeList = routeService.getRoute(line, direction);
 
-
-                if (isADirection(direction)) {
-                    directionA = new ArrayList<>(fillTimes(directionA, routeList, indexA));
-                    indexA++;
-                } else if (isBDirection(direction)) {
-                    directionB = new ArrayList<>(fillTimes(directionB, routeList, indexB));
-                    indexB++;
+                if (isADirection(direction) || isBDirection(direction)) {
+                    directionA = new ArrayList<>(fillTimes(directionA, routeList, direction));
                 }
             }
+
             saveTimetable(directionA);
-            saveTimetable(directionB);
         }
         logger.info("Creating Timelines DONE.");
     }
 
-    private List<Timetable> createFullDirection(List<Timetable> timetable, List<Route> routeList, String direction) {
-        List<Timetable> proceed = new java.util.ArrayList<>(Collections.emptyList());
-        if (timetable.isEmpty()) {
-            for(Route route : routeList) {
-                int groupStationId = gss.getGroupStationById(route.getStationWithTraction()).getId();
-                Timetable row = new Timetable(route.getLine(), direction, groupStationId, "", "", "");
-                proceed.add(row);
-            }
-        } else {
-            proceed = timetable;
-            int index = 0;
-            for (Route route : routeList) {
+    /**
+     *
+     * @param fullRoute already created route
+     * @param routeList route with actual direction to check (A/B/C/D)
+     * @param direction A/B/XA/XB/ZA/ZB
+     * @return extended route of inputFullRoute
+     */
+    private List<Timetable> createFullDirection(List<Timetable> fullRoute, List<Route> routeList, String direction) {
+        List<Timetable> positionOfStart = fullRoute.stream().filter(o -> o.getGroup_station() == gss.getGroupStationById(routeList.get(0).getStationWithTraction()).getId()).collect(Collectors.toList());
+        int index = positionOfStart.size() == 1 ? fullRoute.indexOf(positionOfStart.get(0)) : 0;
 
-                int groupStationId = gss.getGroupStationById(route.getStationWithTraction()).getId();
-                Timetable row = new Timetable(route.getLine(), direction, groupStationId, "", "", "");
+        for (int i = 0; i < routeList.size(); i++) {
+            Timetable row = new Timetable(routeList.get(i).getLine(), gss.getGroupStationById(routeList.get(i).getStationWithTraction()).getId(), "", "", "", "", "", "");
 
-                if (timetable.stream().noneMatch(o -> o.getGroup_station() == row.getGroup_station())) {
-                    proceed.add(index, row);
+            if (fullRoute.isEmpty() || index >= fullRoute.size() || fullRoute.get(index).getGroup_station() != row.getGroup_station()) {
+                int indexOfStation = IntStream.range(0, fullRoute.size())
+                        .filter(o -> fullRoute.get(o).getGroup_station() == row.getGroup_station())
+                        .findFirst().orElse(-1);
+
+                if (indexOfStation <= index || indexOfStation == -1) {
+                    logger.info(row.getLine() + "-" + direction + " " + gss.getGroupStationNameById(row.getGroup_station()) + " " + row.getGroup_station());
+                    fullRoute.add(index, row);
                 }
-                index++;
             }
+            index++;
         }
-        return proceed;
+        return fullRoute;
     }
 
-    private List<Timetable> fillTimes(List<Timetable> timetables, List<Route> routeList, int index) {
-        List<Timetable> proceed = new java.util.ArrayList<>(Collections.emptyList());
-        for (int i = 0; i< timetables.size(); i++) {
-            Timetable timetable = timetables.get(i);
-            List<Route> row = routeList.stream().filter(o -> gss.getGroupStationById(o.getStationWithTraction()).getId() == timetable.getGroup_station()).collect(Collectors.toList());
-            if (!row.isEmpty()) {
-                timetable.setTime_spicka(timetable.getTime_spicka() + row.get(0).getTime_spicka() + ",");
-                timetable.setTime_sedlo(timetable.getTime_sedlo() + row.get(0).getTime_sedlo() + ",");
-                timetable.setTime_noc(timetable.getTime_noc() + row.get(0).getTime_noc() + ",");
-            } else {
-                timetable.setTime_spicka(timetable.getTime_spicka() + "...,");
-                timetable.setTime_sedlo(timetable.getTime_sedlo() + "...,");
-                timetable.setTime_noc(timetable.getTime_noc() + "...,");
+    /**
+     *
+     * @param fullRoute full line
+     * @param routeList line/route to insert
+     * @param direction
+     * @return
+     */
+    private List<Timetable> fillTimes(List<Timetable> fullRoute, List<Route> routeList, String direction) {
+        if (isADirection(direction)) {
+            int indexRouteList = 0;
+            for (int i = 0; i< fullRoute.size(); i++) {
+                Timetable timetable = fullRoute.get(i);
+                if (indexRouteList<routeList.size() && fullRoute.get(i).getGroup_station() == gss.getGroupStationById(routeList.get(indexRouteList).getStationWithTraction()).getId()) {
+                    fullRoute.get(i).setTime_spicka_A(timetable.getTime_spicka_A() + routeList.get(indexRouteList).getTime_spicka() + ",");
+                    fullRoute.get(i).setTime_sedlo_A(timetable.getTime_sedlo_A() + routeList.get(indexRouteList).getTime_sedlo() + ",");
+                    fullRoute.get(i).setTime_noc_A(timetable.getTime_noc_A() + routeList.get(indexRouteList).getTime_noc() + ",");
+                    indexRouteList++;
+                } else if (indexRouteList<routeList.size() && indexRouteList>0) {
+                    fullRoute.get(i).setTime_spicka_A(timetable.getTime_spicka_A() + "↓,");
+                    fullRoute.get(i).setTime_sedlo_A(timetable.getTime_sedlo_A() + "↓,");
+                    fullRoute.get(i).setTime_noc_A(timetable.getTime_noc_A() + "↓,");
+                } else {
+                    fullRoute.get(i).setTime_spicka_A(timetable.getTime_spicka_A() + "...,");
+                    fullRoute.get(i).setTime_sedlo_A(timetable.getTime_sedlo_A() + "...,");
+                    fullRoute.get(i).setTime_noc_A(timetable.getTime_noc_A() + "...,");
+                }
+                fullRoute.get(i).setSequence(i);
             }
+        } else if (isBDirection(direction)) {
+            int indexRouteList = routeList.size()-1;
+            for (int i = 0; i< fullRoute.size(); i++) {
+                Timetable timetable = fullRoute.get(i);
+                if (indexRouteList>=0 && fullRoute.get(i).getGroup_station() == gss.getGroupStationById(routeList.get(indexRouteList).getStationWithTraction()).getId()) {
+                    fullRoute.get(i).setTime_spicka_B(timetable.getTime_spicka_B() + routeList.get(indexRouteList).getTime_spicka() + ",");
+                    fullRoute.get(i).setTime_sedlo_B(timetable.getTime_sedlo_B() + routeList.get(indexRouteList).getTime_sedlo() + ",");
+                    fullRoute.get(i).setTime_noc_B(timetable.getTime_noc_B() + routeList.get(indexRouteList).getTime_noc() + ",");
+                    indexRouteList--;
+                } else if (indexRouteList<routeList.size()-1 && indexRouteList>0) {
+                    fullRoute.get(i).setTime_spicka_B(timetable.getTime_spicka_B() + "↑,");
+                    fullRoute.get(i).setTime_sedlo_B(timetable.getTime_sedlo_B() + "↑,");
+                    fullRoute.get(i).setTime_noc_B(timetable.getTime_noc_B() + "↑,");
+                } else {
+                    fullRoute.get(i).setTime_spicka_B(timetable.getTime_spicka_B() + "...,");
+                    fullRoute.get(i).setTime_sedlo_B(timetable.getTime_sedlo_B() + "...,");
+                    fullRoute.get(i).setTime_noc_B(timetable.getTime_noc_B() + "...,");
 
-            timetable.setSequence(i);
-            proceed.add(timetable);
+                }
+            }
         }
-        return proceed;
+
+        return fullRoute;
     }
 
     /**
@@ -143,33 +238,23 @@ public class TimetableService {
 
         for (String routeLine : routeLines) {
             List<Timetable> routes = timetables.stream().filter(i -> i.getLine().equals(routeLine)).collect(Collectors.toList());
-            List<StationsDto> directionA = new ArrayList<>();
-            List<StationsDto> directionB = new ArrayList<>();
+            List<StationsDto> line = new ArrayList<>();
             List<RoutesDto> fullLine = new ArrayList<>();
 
             for (Timetable ts : routes) {
-                if (ts.getDirection().equals("A")) {
-                    directionA.add(new StationsDto(
-                            gss.getGroupStationNameById(ts.getGroup_station()),
-                            ts.getSequence(),
-                            Arrays.asList(ts.getTime_spicka().split(",")),
-                            Arrays.asList(ts.getTime_sedlo().split(",")),
-                            Arrays.asList(ts.getTime_noc().split(",")))
-                    );
-                } else if (ts.getDirection().equals("B")) {
-                    directionB.add(new StationsDto(
-                            gss.getGroupStationNameById(ts.getGroup_station()),
-                            ts.getSequence(),
-                            Arrays.asList(ts.getTime_spicka().split(",")),
-                            Arrays.asList(ts.getTime_sedlo().split(",")),
-                            Arrays.asList(ts.getTime_noc().split(",")))
-                    );
-                }
+                line.add(new StationsDto(
+                        gss.getGroupStationNameById(ts.getGroup_station()),
+                        ts.getSequence(),
+                        Arrays.asList(ts.getTime_spicka_A().split(",")),
+                        Arrays.asList(ts.getTime_sedlo_A().split(",")),
+                        Arrays.asList(ts.getTime_noc_A().split(",")),
+                        Arrays.asList(ts.getTime_spicka_B().split(",")),
+                        Arrays.asList(ts.getTime_sedlo_B().split(",")),
+                        Arrays.asList(ts.getTime_noc_B().split(",")))
+                );
             }
 
-            fullLine.add(new RoutesDto("A", directionA));
-            fullLine.add(new RoutesDto("B", directionB));
-            lines.add(new TimelinesDto(routeLine, fullLine, directionA.get(0).getName(), directionA.get(directionA.size()-1).getName()));
+            lines.add(new TimelinesDto(routeLine, line, line.get(0).getName(), line.get(line.size()-1).getName()));
         }
         return lines;
     }

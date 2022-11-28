@@ -87,7 +87,11 @@ public class GroupStationService {
     }
 
     public String getGroupStationNameById(int id) {
-        return groupStationRepository.findFirstById(id).getName();
+        GroupStation groupStation = groupStationRepository.findFirstById(id);
+        if (groupStation != null)
+            return groupStation.getName();
+        else
+            return " ";
     }
 
     /**
