@@ -61,13 +61,8 @@ public class TimetableService {
             for (int i = 0; i< lineLength; i++) {
                 String da = directionA.size()>i ? gss.getGroupStationNameById(directionA.get(i).getGroup_station()) +" ("+directionA.get(i).getGroup_station()+ ")" : "0";
                 String db = directionB.size()>i ? gss.getGroupStationNameById(directionB.get(i).getGroup_station()) +" ("+directionB.get(i).getGroup_station()+ ")" : "0";
-
-                logger.info(line + ": " + da + " - " + db);
             }
 
-            if (line.equals("61")) {
-                logger.info(line);
-            }
 
             Collections.reverse(directionB);
             int index = 0;
@@ -89,34 +84,7 @@ public class TimetableService {
                     index++;
                 }
             }
-            /*
-            int indexA = 0, indexB = 0;
 
-            while (indexA < directionA.size()) {
-                if (directionA.get(indexA).equals(directionB.get(indexA))) {
-                 //   logger.info("A: " +line + ": "+ gss.getGroupStationNameById(directionA.get(indexA).getGroup_station()) + " = " + gss.getGroupStationNameById(directionB.get(indexA).getGroup_station()));
-                    indexA++;
-                } else {
-                 //   logger.info("A-" + line + " :  " + gss.getGroupStationNameById(directionA.get(indexA).getGroup_station()) +" ("+directionA.get(indexA).getGroup_station()+ ") != " + gss.getGroupStationNameById(directionB.get(indexA).getGroup_station())+" ("+directionB.get(indexA).getGroup_station()+ ")");
-                    directionA.add(indexA, directionB.get(indexA));
-                }
-            }
-
-            while (indexB < directionB.size()) {
-                if (directionB.get(indexB).equals(directionA.get(indexB))) {
-                 //   logger.info("B: " +line + ": "+ gss.getGroupStationNameById(directionA.get(indexB).getGroup_station()) + " = " + gss.getGroupStationNameById(directionB.get(indexB).getGroup_station()));
-                    indexB++;
-                } else {
-                 //   logger.info("B-" + line + " :  " + gss.getGroupStationNameById(directionA.get(indexB).getGroup_station()) +" ("+directionA.get(indexA).getGroup_station()+ ") != " + gss.getGroupStationNameById(directionB.get(indexB).getGroup_station())+" ("+directionB.get(indexA).getGroup_station()+ ")");
-                    directionB.add(indexB, directionA.get(indexB));
-
-                }
-            }
-
-            if (directionA.equals(directionB)) {
-                logger.info("Linka " + line + " OK.");
-            }
-*/
             for (String direction : directions) {
 
                 List<Route> routeList = routeService.getRoute(line, direction);
@@ -151,7 +119,6 @@ public class TimetableService {
                         .findFirst().orElse(-1);
 
                 if (indexOfStation <= index || indexOfStation == -1) {
-                    logger.info(row.getLine() + "-" + direction + " " + gss.getGroupStationNameById(row.getGroup_station()) + " " + row.getGroup_station());
                     fullRoute.add(index, row);
                 }
             }
