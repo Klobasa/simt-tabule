@@ -10,10 +10,23 @@
         <Console name="ConsoleAppender" target="SYSTEM_OUT" follow="true">
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
+        <!-- Rolling File Appender -->
+        <RollingFile name="FileAppender" fileName="logs/logs.log"
+                     filePattern="logs/logs-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout>
+                <Pattern>${LOG_PATTERN}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10MB" />
+                <TimeBasedTriggeringPolicy interval="1" />
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
     </Appenders>
     <Loggers>
         <Logger name="cz.simt.tabule" level="debug" additivity="false">
             <AppenderRef ref="ConsoleAppender" />
+            <AppenderRef ref="FileAppender" />
         </Logger>
 
         <Root level="info">
@@ -22,16 +35,4 @@
         </Root>
     </Loggers>
 
-    <!-- Rolling File Appender -->
-    <RollingFile name="FileAppender" fileName="logs/logs.log"
-                 filePattern="logs/logs-%d{yyyy-MM-dd}-%i.log">
-        <PatternLayout>
-            <Pattern>${LOG_PATTERN}</Pattern>
-        </PatternLayout>
-        <Policies>
-            <SizeBasedTriggeringPolicy size="10MB" />
-            <TimeBasedTriggeringPolicy interval="1" />
-        </Policies>
-        <DefaultRolloverStrategy max="15"/>
-    </RollingFile>
 </Configuration>
