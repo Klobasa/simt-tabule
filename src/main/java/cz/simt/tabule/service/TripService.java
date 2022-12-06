@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import cz.simt.tabule.data.Line;
+import cz.simt.tabule.data.*;
 import cz.simt.tabule.dto.GetTripDto;
 import cz.simt.tabule.dto.GetPlayerIdDto;
 import cz.simt.tabule.dto.GetTripHeaderDto;
@@ -17,9 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import cz.simt.tabule.data.Player;
-import cz.simt.tabule.data.Route;
-import cz.simt.tabule.data.Trip;
 import cz.simt.tabule.repository.TripRepository;
 
 @Service
@@ -97,7 +94,7 @@ public class TripService {
             Trip fs = tripRepository.findFirstByPlayerIdOrderBySequenceAsc(playerId);
             return new GetTripDto(groupStationService.getGroupStationById(fs.getStopId()).getName(), fs.getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
         } catch (NullPointerException e) {
-            logger.error("Cannot load firstStation for: " + playerId + "\n" + e);
+            logger.warn("Cannot load firstStation for: " + playerId + ": " + e);
             return new GetTripDto();
         }
 
@@ -108,7 +105,7 @@ public class TripService {
             Trip ls = tripRepository.findFirstByPlayerIdOrderBySequenceDesc(playerId);
             return new GetTripDto(groupStationService.getGroupStationById(ls.getStopId()).getName(), ls.getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
         } catch (NullPointerException e) {
-            logger.error("Cannot load lastStation for: " + playerId + "\n" + e);
+            logger.warn("Cannot load lastStation for: " + playerId + ": " + e);
             return new GetTripDto();
         }
     }
@@ -124,12 +121,13 @@ public class TripService {
     }
 
     private GetTripDto getActualStationFromPlayerTable(String playerId) {
-        GetTripDto tripDto = new GetTripDto();
-        LocalDateTime ast = getDepartureFromCurrentStopByPlayerId(playerId);
-        String asId = playerService.getPlayerFromId(playerId).getStation();
-        tripDto.setStation(asId != null ? groupStationService.getGroupStationById(asId).getName() : null);
-        tripDto.setDeparture(ast != null ? ast.format(DateTimeFormatter.ofPattern("HH:mm")) : null);
-        return tripDto;
+        try {
+            Trip as = tripRepository.findActualStationByPlayerId(playerId);
+            return new GetTripDto(groupStationService.getGroupStationById(as.getStopId()).getName(), as.getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+        } catch (NullPointerException e) {
+            logger.warn("Cannot load actualStation for: " + playerId + ": " + e);
+            return new GetTripDto();
+        }
     }
 
     public void unsetPosition(String playerId) {

@@ -54,6 +54,7 @@ public class StationService {
     @PostConstruct
     @Scheduled(cron = "0 0 8 * * *") // 8 o'clock of every day.)
     public void getStationList() {
+        logger.info("App version: " + getClass().getPackage().getImplementationVersion());
         logger.info("Loading stations started..");
         String[] split = null;
         while (split == null) {
@@ -81,13 +82,13 @@ public class StationService {
         List<Station> stationList = StreamSupport
                 .stream(stationRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
-        groupStationService.createGroupedStations(stationList);
 
         timesService.saveTime(new Times("stationsJsonGenerated", LocalDateTime.parse(split[split.length-1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
         timesService.saveCurrentTime("stationsLoaded");
         logger.info("Loading stations DONE.");
 
         routeService.routes();
+        groupStationService.createGroupedStations(stationList);
         timetableService.createTimetable();
     }
 

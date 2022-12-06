@@ -9,6 +9,7 @@ import cz.simt.tabule.repository.TimetableRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
@@ -33,7 +34,9 @@ public class TimetableService {
     public void createTimetable() {
         // SELECT t.*, g.name FROM TIMETABLE t JOIN GROUP_STATION g ON g.id = t.GROUP_STATION
         logger.info("Creating Timelines started..");
+        logger.info("Délka před: " + timetableRepository.count());
         timetableRepository.deleteAll();
+        logger.info("Délka po:   " + timetableRepository.count());
 
         List<String> lines = routeService.getAllLines();
 

@@ -96,8 +96,6 @@ public class PlayerService {
                         playerDb.setTime(player.getTime());
                         tripService.unsetPosition(playerDb.getId());
                         tripService.setPosition(playerDb.getId(), playerDb.getStation());
-                        logger.debug("Set player " + playerDb.getId() + " " + playerDb.getRoute() + " position "
-                                + groupStationService.getGroupStationById(playerDb.getStation()).getName() + " (" + playerDb.getStation() + ") at " + playerDb.getTime());
                     }
                     if (!Objects.equals(playerDb.getStation(), player.getStation()) || playerDb.getDelay() != player.getDelay()) {
                         playerDb.setUpdated(LocalDateTime.now());
