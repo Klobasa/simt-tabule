@@ -26,6 +26,7 @@ public class GroupStationService {
     }
 
     public void createGroupedStations(List<Station> stations) {
+        groupStationRepository.deleteAll();
         int id = 1;
         for (Station station : stations) {
             if (station.getStationName().matches(".+ N[123]$")) {

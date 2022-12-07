@@ -44,6 +44,7 @@ public class RouteService {
             }
         }
 
+        routeRepository.deleteAll();
         for (int i = 0; i < splitFullRoute.length - 1; i++) {
             int soucetSpicka = 0; int soucetSedlo = 0; int soucetNoc = 0;
             String[] splitRoute = splitFullRoute[i].split("/");

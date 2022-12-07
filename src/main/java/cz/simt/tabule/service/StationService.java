@@ -52,7 +52,7 @@ public class StationService {
     }
 
     @PostConstruct
-    @Scheduled(cron = "0 0 8 * * *") // 8 o'clock of every day.)
+    @Scheduled(cron = "0 0 6,13,20 * * *") // 6,13,20 o'clock of every day.)
     public void getStationList() {
         logger.info("App version: " + getClass().getPackage().getImplementationVersion());
         logger.info("Loading stations started..");
@@ -69,7 +69,7 @@ public class StationService {
                 }
             }
         }
-
+        stationRepository.deleteAll();
         for (int i = 0; i<split.length-1; i++) {
             Station station = new Station();
             String[] stationSplit = split[i].split("/");

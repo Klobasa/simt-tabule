@@ -34,9 +34,7 @@ public class TimetableService {
     public void createTimetable() {
         // SELECT t.*, g.name FROM TIMETABLE t JOIN GROUP_STATION g ON g.id = t.GROUP_STATION
         logger.info("Creating Timelines started..");
-        logger.info("Délka před: " + timetableRepository.count());
         timetableRepository.deleteAll();
-        logger.info("Délka po:   " + timetableRepository.count());
 
         List<String> lines = routeService.getAllLines();
 
