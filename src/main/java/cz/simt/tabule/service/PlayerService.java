@@ -145,7 +145,7 @@ public class PlayerService {
         287 - ID aktuální zastávky
          */
         String[] sp = player.split("/");
-        if (sp.length == 8) {
+        if (sp.length == 9) {
             String[] st = sp[3].split(":");
             LocalDateTime startTime = LocalDate.now().atTime(Integer.parseInt(st[0]), Integer.parseInt(st[1]));
             startTime = (startTime.getHour() < 4 && LocalDateTime.now().isAfter(LocalDate.now().atTime(19, 0))) ? startTime.plusDays(1) : startTime;
