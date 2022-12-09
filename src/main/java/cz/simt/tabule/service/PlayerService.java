@@ -21,6 +21,7 @@ import cz.simt.tabule.dto.GetPlayerIdDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,9 @@ public class PlayerService {
         this.routeService = routeService;
     }
 
+    @Value("${app.apiurl.player}")
+    private String apiUrl;
+
     @Scheduled(fixedRate = 31000)
     private void cronLoadPlayers() {
         logger.info("Cron to load players.");
@@ -66,7 +70,7 @@ public class PlayerService {
         logger.info("Download players started..");
         String[] stringPlayer;
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
-        Future<String[]> future = executor.submit(() -> apiRead.readFromUrl("https://simt.cz/server/dispData.php?kod=v5sov3b75sd"));
+        Future<String[]> future = executor.submit(() -> apiRead.readFromUrl(apiUrl));
         try {
             stringPlayer = future.get(5, TimeUnit.SECONDS);
         } catch (TimeoutException ex) {
@@ -130,6 +134,16 @@ public class PlayerService {
 
     private Player createPlayerFromPattern(String player) {
         //18/B/Bělice/19:3/1130/2-0012/11/267
+        /*
+        23 - číslo linky
+        B - směr linky
+        Na Lukách - cílová zastávka
+        9:45 - odjezd (výchozí čas)
+        -1030 - zpoždění nebo nadjetí v sekundách vůči následující zastávce
+        6-0025 - herní kód vozu (typ vozidla)
+        13 - počet zastávek na lince
+        287 - ID aktuální zastávky
+         */
         String[] sp = player.split("/");
         if (sp.length == 8) {
             String[] st = sp[3].split(":");

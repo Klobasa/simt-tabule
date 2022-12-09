@@ -16,6 +16,7 @@ import cz.simt.tabule.data.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +52,9 @@ public class StationService {
         this.timetableService = timetableService;
     }
 
+    @Value("${app.apiurl.station}")
+    private String apiUrl;
+
     @PostConstruct
     @Scheduled(cron = "0 0 6,13,20 * * *") // 6,13,20 o'clock of every day.)
     public void getStationList() {
@@ -59,7 +63,7 @@ public class StationService {
         String[] split = null;
         while (split == null) {
             try {
-                split = apiRead.readFromUrl("https://simt.cz/server/dispData.php?kod=9b6kqv04wc0");
+                split = apiRead.readFromUrl(apiUrl);
             } catch (IOException e) {
                 logger.error("CANNOT LOAD STATIONS, WAITING 10SEC TO ANOTHER TRY..\n" + e.getMessage());
                 try {
@@ -104,7 +108,7 @@ public class StationService {
             int playerPosition = tripService.getPositionByPlayerId(player.getId());
             int isAtStation = playerPosition == trip.getSequence() ? 1 : 0;
             int timeToDeparture = (int) LocalDateTime.now().until(trip.getTime(), ChronoUnit.MINUTES);
-            Line line = new Line(player.getLine());
+            Line line = new Line(player.getLine(), routeService.getLineTraction(player.getLine()));
             timeToDeparture = player.getDelay() > 0 ? timeToDeparture : timeToDeparture-(player.getDelay()/60);
 
             /* Hide player if: is inactive for 15 minutes, delay is bigger than 90 mins or earlier than 120 mins */

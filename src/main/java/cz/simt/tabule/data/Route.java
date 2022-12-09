@@ -17,12 +17,13 @@ public class Route {
     private int time_spicka;
     private int time_sedlo;
     private int time_noc;
+    private int traction;
 
     public Route() {
 
     }
 
-    public Route(String line, String direction, int sequence, String station, int time_spicka, int time_sedlo, int time_noc) {
+    public Route(String line, String direction, int sequence, String station, int time_spicka, int time_sedlo, int time_noc, int traction) {
         this.line = line;
         this.direction = direction;
         this.sequence = sequence;
@@ -30,6 +31,7 @@ public class Route {
         this.time_spicka = time_spicka;
         this.time_sedlo = time_sedlo;
         this.time_noc = time_noc;
+        this.traction = traction;
     }
 
     public String getLine() {
@@ -45,13 +47,12 @@ public class Route {
     }
 
     public String getStationWithTraction() {
-        if (line.length() == 1) {
+        if (traction == 2) {
             return station + ":2";
         } else {
             return station + ":0";
         }
     }
-
 
     public int getTime_noc() {
         return time_noc;
@@ -103,5 +104,13 @@ public class Route {
 
     public void setSequence(final int order) {
         this.sequence = order;
+    }
+
+    public int getTraction() {
+        return traction;
+    }
+
+    public void setTraction(int traction) {
+        this.traction = traction;
     }
 }

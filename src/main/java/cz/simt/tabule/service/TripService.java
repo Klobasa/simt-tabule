@@ -66,9 +66,10 @@ public class TripService {
 
         for (GetPlayerIdDto pId : playersId) {
             String playerId = pId.getPlayerId();
+            int traction = routeService.getLineTraction(playerService.getPlayerFromId(playerId).getLine());
             GetTripHeaderDto tripHeader = new GetTripHeaderDto();
             tripHeader.setId(playerId);
-            tripHeader.setLine(new Line(playerService.getPlayerFromId(playerId).getLine()));
+            tripHeader.setLine(new Line(playerService.getPlayerFromId(playerId).getLine(), traction));
             tripHeader.setStartStation(getFirstStation(playerId));
             tripHeader.setEndStation(getLastStation(playerId));
             tripHeader.setActualStation(getActualStationFromPlayerTable(playerId));

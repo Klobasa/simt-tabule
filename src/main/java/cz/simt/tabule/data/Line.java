@@ -2,18 +2,18 @@ package cz.simt.tabule.data;
 
 public class Line implements Comparable<Line> {
     private String line;
-    private String traction;
+    private int traction;
 
-    public Line (String line) {
+    public Line (String line, int traction) {
         this.line = line;
-        this.traction = getTraction(line);
+        this.traction = traction;
     }
 
     public String getLine() {
         return line;
     }
 
-    public String getTraction() {
+    public int getTraction() {
         return traction;
     }
 

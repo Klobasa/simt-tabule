@@ -1,6 +1,7 @@
 package cz.simt.tabule.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -31,4 +32,8 @@ public interface RouteRepository extends CrudRepository<Route, Long> {
     @Transactional
     @Query(value = "SELECT r.direction FROM Route r WHERE r.line=?1 GROUP BY r.line, r.direction")
     List<String> getDirectionForLine(String line);
+
+    @Transactional
+    @Query(value = "SELECT r.traction FROM Route r WHERE r.line=?1 GROUP BY r.line")
+    Optional<Integer> getLineTraction(String line);
 }

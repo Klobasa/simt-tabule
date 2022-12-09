@@ -8,7 +8,7 @@ public class GetStationDto {
     private int id;
     private String line;
     private String route;
-    private String traction;
+    private int traction;
     private String endStation;
     private String station;
     private int isAtStation;
@@ -16,7 +16,7 @@ public class GetStationDto {
     private int timeToDeparture;
     private int delay;
 
-    public GetStationDto(int id, String line, String route, String traction, String endStation, String station, String departure, int delay, int isAtStation, int timeToDeparture) {
+    public GetStationDto(int id, String line, String route, int traction, String endStation, String station, String departure, int delay, int isAtStation, int timeToDeparture) {
         this.id = id;
         this.line = line;
         this.route = route;

@@ -68,7 +68,7 @@ public class GroupStationService {
             if (gs.getLines() != null) {
                 String[] linesSplit = gs.getLines().split(",");
                 for (String line : linesSplit) {
-                    lines.add(new Line(line));
+                    lines.add(new Line(line, routeService.getLineTraction(line)));
                 }
                 Collections.sort(lines);
             }
