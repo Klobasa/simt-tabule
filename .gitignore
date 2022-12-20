@@ -31,5 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Custom ###
 /ftp.txt
-/src/main/resources/application-prod.properties
+src/main/resources/application-prod.properties
+src/main/recources/discord-settings.properties

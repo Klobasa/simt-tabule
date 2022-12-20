@@ -33,7 +33,7 @@ public class Player {
 
     }
 
-    public Player(String id, String line, String route, String vehicle, LocalDateTime startTime, LocalTime time, String station, String endStation, int delay, LocalDateTime updated) {
+    public Player(String id, String line, String route, String vehicle, LocalDateTime startTime, LocalTime time, String station, String endStation, int delay, LocalDateTime updated, String nick) {
         this.id = id;
         this.line = line;
         this.route = route;
@@ -44,6 +44,7 @@ public class Player {
         this.endStation = endStation;
         this.delay = delay;
         this.updated = updated;
+        this.nick = nick;
     }
 
     public String getId() {
