@@ -54,7 +54,7 @@ public class PlayerService {
     @Value("${app.apiurl.player}")
     private String apiUrl;
 
-    @Scheduled(fixedRate = 31000)
+    @Scheduled(fixedRate = 10000)
     private void cronLoadPlayers() {
         logger.info("Cron to load players.");
         LocalDateTime pageLoaded = timesService.getTimeById("pageLoaded");
@@ -91,7 +91,7 @@ public class PlayerService {
             // System.out.println("Setting player: " + stringPlayer[i]);
             Player player = createPlayerFromPattern(stringPlayer[i]);
             if (player != null) {
-                Optional<Player> optionalPlayer = playerRepository.findById(getPlayerIdFromPattern(stringPlayer[i]));
+                Optional<Player> optionalPlayer = playerRepository.findById(player.getId());
 
                 if (optionalPlayer.isPresent()) {
                     Player playerDb = optionalPlayer.get();
@@ -152,7 +152,7 @@ public class PlayerService {
             sp[7] += (groupStationService.determineTraction(sp[0])) ? ":2" : ":0";
 
             try {
-                return new Player(getPlayerIdFromPattern(player), sp[0], sp[1], sp[5], startTime, getTimeFromDelay(sp[4]), sp[7], sp[2], Integer.parseInt(sp[4]), LocalDateTime.now());
+                return new Player(getPlayerIdFromPattern(player), sp[0], sp[1], sp[5], startTime, getTimeFromDelay(sp[4]), sp[7], sp[2], Integer.parseInt(sp[4]), LocalDateTime.now(), sp[8]);
             } catch (Exception e) {
                 logger.error("Error creating player " + player + " " + e.getMessage());
                 return null;
@@ -164,7 +164,7 @@ public class PlayerService {
 
     private String getPlayerIdFromPattern(String player) {
         String[] splitPlayer = player.split("/");
-        return splitPlayer[0] + splitPlayer[1] + splitPlayer[2] + splitPlayer[3] + splitPlayer[5];
+        return splitPlayer[0] + splitPlayer[1] + splitPlayer[3] + splitPlayer[5] + splitPlayer[8];
     }
 
     private LocalTime getTimeFromDelay(String delay) {
