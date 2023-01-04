@@ -33,6 +33,7 @@ public class ApiRead {
         assert response != null;
         byte[] decodedBytes = Base64.getMimeDecoder().decode(response.body());
         String decodedResponse = new String(decodedBytes);
+        decodedResponse = decodedResponse.replaceAll("\\p{C}", "");
         logger.debug("Return");
         return decodedResponse.split("\\|");
     }
