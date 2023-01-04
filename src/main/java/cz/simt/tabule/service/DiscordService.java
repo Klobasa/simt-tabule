@@ -16,8 +16,9 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 
 @Service
-@PropertySource("discord-settings.properties")
+//@PropertySource("discord-settings.properties")
 public class DiscordService {
+    /*
     @Value("${discord.client.id}")
     private String clientId;
 
@@ -46,6 +47,8 @@ public class DiscordService {
         System.out.println(response.body());
         return response.body();
     }
+
+     */
 
 
 }

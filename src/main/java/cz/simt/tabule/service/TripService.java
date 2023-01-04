@@ -60,7 +60,7 @@ public class TripService {
 
     }
 
-    public List<GetTripHeaderDto> getTripHeader() {
+    public List<GetTripHeaderDto> getTripHeader(boolean manipulacniJizdy) {
         List<GetPlayerIdDto> playersId = playerService.getAllPlayersId();
         List<GetTripHeaderDto> tripsHeader = new ArrayList<>();
 
@@ -69,6 +69,7 @@ public class TripService {
             int traction = routeService.getLineTraction(playerService.getPlayerFromId(playerId).getLine());
             GetTripHeaderDto tripHeader = new GetTripHeaderDto();
             tripHeader.setId(playerId);
+            tripHeader.setPlayerNick(pId.getPlayerNick());
             tripHeader.setLine(new Line(playerService.getPlayerFromId(playerId).getLine(), traction));
             tripHeader.setStartStation(getFirstStation(playerId));
             tripHeader.setEndStation(getLastStation(playerId));
@@ -76,6 +77,10 @@ public class TripService {
             tripHeader.setDepartureFromActualStation(getDepartureFromCurrentStopByPlayerId(playerId));
             tripsHeader.add(tripHeader);
         }
+        if (!manipulacniJizdy) {
+            tripsHeader.removeIf(n -> (n.getLine().getLine().equals("0")));
+        }
+
         tripsHeader.sort(Comparator.comparing(GetTripHeaderDto::getLine));
         return tripsHeader;
     }
@@ -95,7 +100,6 @@ public class TripService {
             Trip fs = tripRepository.findFirstByPlayerIdOrderBySequenceAsc(playerId);
             return new GetTripDto(groupStationService.getGroupStationById(fs.getStopId()).getName(), fs.getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
         } catch (NullPointerException e) {
-            logger.warn("Cannot load firstStation for: " + playerId + ": " + e);
             return new GetTripDto();
         }
 
@@ -106,8 +110,8 @@ public class TripService {
             Trip ls = tripRepository.findFirstByPlayerIdOrderBySequenceDesc(playerId);
             return new GetTripDto(groupStationService.getGroupStationById(ls.getStopId()).getName(), ls.getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
         } catch (NullPointerException e) {
-            logger.warn("Cannot load lastStation for: " + playerId + ": " + e);
-            return new GetTripDto();
+            Player p = playerService.getPlayerFromId(playerId);
+            return new GetTripDto(p.getEndStation(), "0:00");
         }
     }
 
@@ -126,7 +130,6 @@ public class TripService {
             Trip as = tripRepository.findActualStationByPlayerId(playerId);
             return new GetTripDto(groupStationService.getGroupStationById(as.getStopId()).getName(), as.getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
         } catch (NullPointerException e) {
-            logger.warn("Cannot load actualStation for: " + playerId + ": " + e);
             return new GetTripDto();
         }
     }

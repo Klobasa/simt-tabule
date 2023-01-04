@@ -29,4 +29,6 @@ public interface PlayerRepository extends CrudRepository<Player, Long> {
     @Transactional
     @Query("SELECT p.id FROM Player p")
     List<String> findAllPlayersId();
+
+    List<Player> findAll();
 }

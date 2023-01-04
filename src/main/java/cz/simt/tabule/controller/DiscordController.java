@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class DiscordController {
+    /*
     private final DiscordService discordService;
 
     @Autowired
@@ -22,4 +23,6 @@ public class DiscordController {
     public @ResponseBody String getCode(@RequestParam String code) {
         return discordService.authenticate(code);
     }
+
+     */
 }
