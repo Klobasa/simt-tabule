@@ -226,6 +226,7 @@ public class TimetableService {
 
             lines.add(new TimelinesDto(routeLine, line, line.get(0).getName(), line.get(line.size()-1).getName()));
         }
+        timetables.sort(Comparator.comparing(Timetable::getLine));
         return lines;
     }
 

@@ -84,7 +84,12 @@ public class GroupStationService {
     }
 
     public String getGroupStationNameByUrlName(String urlName) {
-        return groupStationRepository.findFirstByUrlName(urlName).getName();
+        Optional<GroupStation> groupStation = groupStationRepository.findFirstByUrlName(urlName);
+        if (groupStation.isPresent()) {
+            return groupStation.get().getName();
+        } else {
+            return "";
+        }
     }
 
     public String getGroupStationNameById(int id) {

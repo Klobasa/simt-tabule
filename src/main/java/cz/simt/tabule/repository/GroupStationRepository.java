@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cz.simt.tabule.data.GroupStation;
 
+import java.util.Optional;
+
 
 public interface GroupStationRepository extends CrudRepository<GroupStation, Integer> {
 
@@ -27,7 +29,7 @@ public interface GroupStationRepository extends CrudRepository<GroupStation, Int
     @Query("SELECT s FROM GroupStation s WHERE s.ids LIKE ?1 OR s.ids LIKE ?2 OR s.ids LIKE ?3")
     GroupStation findNameByStationId(String id1, String id2, String id3);
 
-    GroupStation findFirstByUrlName(String url);
+    Optional<GroupStation> findFirstByUrlName(String url);
 
     GroupStation findFirstById(int id);
 }

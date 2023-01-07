@@ -3,7 +3,7 @@ spring.h2.console.enabled=false
 server.port=8443
 security.require-ssl=true
 server.ssl.key-store=/etc/letsencrypt/live/simt-tabule.ga/springboot.p12
-server.ssl.key-store-password=7dSeK4fhvWJm
+server.ssl.key-store-password=<<PASSWORD>>
 server.ssl.keyStoreType=PKCS12
 server.ssl.keyAlias=tomcat
 

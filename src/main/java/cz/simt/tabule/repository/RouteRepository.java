@@ -34,6 +34,6 @@ public interface RouteRepository extends CrudRepository<Route, Long> {
     List<String> getDirectionForLine(String line);
 
     @Transactional
-    @Query(value = "SELECT r.traction FROM Route r WHERE r.line=?1 GROUP BY r.line")
+    @Query(value = "SELECT r.traction FROM Route r WHERE r.line=?1 LIMIT 1", nativeQuery = true)
     Optional<Integer> getLineTraction(String line);
 }
