@@ -107,7 +107,7 @@ public class PlayerService {
                     playerDb.setDelay(player.getDelay());
                     playerDb.setChecked('Y');
                     playerRepository.save(playerDb);
-                } else if (!routeService.lineExist(player.getLine())) {
+                } else if (!routeService.lineExist(player.getLine()) && !player.getLine().equals("0")) {
                     logger.warn("Cannot find line for player " + player.toString());
                 } else {
                     player.setChecked('Y');

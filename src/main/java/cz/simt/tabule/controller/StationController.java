@@ -47,6 +47,7 @@ public class StationController {
         return new JSONObject()
                 .put("stationName", groupStationService.getGroupStationNameByUrlName(stationUrlName))
                 .put("departures", stationService.getStationInfo(stationUrlName))
+                .put("dataGenerated", timesService.getTimeById("playersJsonGenerated"))
                 .toString();
     }
 }
