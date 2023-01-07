@@ -87,6 +87,31 @@ public class RouteService {
         return routeRepository.countRoute(line) > 0;
     }
 
+    //Manipulační jízda
+    public String getHandlingType(String route) {
+        String endStation;
+        switch (route) {
+            case "A":
+                return "Manipulační jízda";
+            case "B":
+                return "Vůz jede do vozovny";
+            case "C":
+                return "Mimo provoz";
+            case "D":
+                return "Cvičná jízda";
+            case "E":
+                return "Objednaná jízda";
+            case "F":
+                return "Přestávka - Pause";
+            case "G":
+                return "Služební jízda";
+            case "H":
+                return "Pozor vadný vůz";
+            default:
+                return "";
+        }
+    }
+
     public List<String> getAllLines() {
         return routeRepository.getAllLines();
     }

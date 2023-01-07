@@ -38,17 +38,19 @@ public class PlayerService {
     private final ApiRead apiRead;
     private final TimesService timesService;
     private final RouteService routeService;
+    private final PlayersListService playersListService;
     private static final Logger logger = LoggerFactory.getLogger("PlayerService");
 
     @Autowired
     public PlayerService(TripService tripService, PlayerRepository playerRepository, GroupStationService groupStationService,
-                         ApiRead apiRead, TimesService timesService, RouteService routeService) {
+                         ApiRead apiRead, TimesService timesService, RouteService routeService, PlayersListService playersListService) {
         this.tripService = tripService;
         this.playerRepository = playerRepository;
         this.groupStationService = groupStationService;
         this.apiRead = apiRead;
         this.timesService = timesService;
         this.routeService = routeService;
+        this.playersListService = playersListService;
     }
 
     @Value("${app.apiurl.player}")
@@ -93,6 +95,7 @@ public class PlayerService {
             if (player != null) {
                 Optional<Player> optionalPlayer = playerRepository.findById(player.getId());
 
+                //Hráč je v db
                 if (optionalPlayer.isPresent()) {
                     Player playerDb = optionalPlayer.get();
                     if (!player.getTime().equals(playerDb.getTime())) {
@@ -107,8 +110,16 @@ public class PlayerService {
                     playerDb.setDelay(player.getDelay());
                     playerDb.setChecked('Y');
                     playerRepository.save(playerDb);
-                } else if (!routeService.lineExist(player.getLine()) && !player.getLine().equals("0")) {
+                //Manipulační jízda
+                } else if (player.getLine().equals("0")) {
+                    player.setChecked('Y');
+                    player.setEndStation(routeService.getHandlingType(player.getRoute()));
+                    playerRepository.save(player);
+                    logger.debug("Saved new player: " + stringPlayer[i]);
+                //Nejde najít linku
+                } else if (!routeService.lineExist(player.getLine())) {
                     logger.warn("Cannot find line for player " + player.toString());
+                //Není v db
                 } else {
                     player.setChecked('Y');
                     playerRepository.save(player);
@@ -116,8 +127,10 @@ public class PlayerService {
                     player.setEndStation(tripService.getLastStation(player.getId()).getStation());
                     playerRepository.save(player);
                     tripService.setPosition(player.getId(), player.getStation());
-                    logger.debug("Save new player: " + stringPlayer[i]);
+                    logger.debug("Saved new player: " + stringPlayer[i]);
                 }
+
+                playersListService.insertPlayerInDatabase(player.getNick());
             }
         }
         timesService.saveTime(new Times("playersJsonGenerated", LocalDateTime.parse(stringPlayer[stringPlayer.length-1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
@@ -147,6 +160,11 @@ public class PlayerService {
         String[] sp = player.split("/");
         if (sp.length == 9) {
             String[] st = sp[3].split(":");
+            try {
+                LocalDateTime startTime = LocalDate.now().atTime(Integer.parseInt(st[0]), Integer.parseInt(st[1]));
+            } catch (Exception e) {
+                logger.error("špatný čas: " + player + "Message: " + e.getMessage());
+            }
             LocalDateTime startTime = LocalDate.now().atTime(Integer.parseInt(st[0]), Integer.parseInt(st[1]));
             startTime = (startTime.getHour() < 4 && LocalDateTime.now().isAfter(LocalDate.now().atTime(19, 0))) ? startTime.plusDays(1) : startTime;
             sp[7] += (groupStationService.determineTraction(sp[0])) ? ":2" : ":0";
@@ -179,12 +197,12 @@ public class PlayerService {
     }
 
     public List<GetPlayerIdDto> getAllPlayersId() {
-        List<String> playersId = playerRepository.findAllPlayersId();
+        List<Player> players = playerRepository.findAll();
         List<GetPlayerIdDto> playersIdDto = new ArrayList<>();
         int cnt = 0;
 
-        for (String playerId : playersId) {
-            playersIdDto.add(new GetPlayerIdDto(cnt++, playerId));
+        for (Player player : players) {
+            playersIdDto.add(new GetPlayerIdDto(cnt++, player.getId(), player.getNick()));
         }
 
         return playersIdDto;

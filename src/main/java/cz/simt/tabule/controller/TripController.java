@@ -6,10 +6,7 @@ import cz.simt.tabule.service.TripService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class TripController {
@@ -36,12 +33,12 @@ public class TripController {
 
     @GetMapping("/spoj")
     @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
-    public @ResponseBody String getTripList() {
+    public @ResponseBody String getTripList(@RequestParam(name = "man", required = false, defaultValue = "true") boolean manipulacni) {
         playerService.loadPlayerWhenInactive();
         timesService.saveCurrentTime("tripCalled");
         timesService.saveCurrentTime("pageLoaded");
         return new JSONObject()
-                .put("tripHeader", tripService.getTripHeader())
+                .put("tripHeader", tripService.getTripHeader(manipulacni))
                 .put("timeGenerated", timesService.getTimeById("playersJsonGenerated"))
                 .toString();
 

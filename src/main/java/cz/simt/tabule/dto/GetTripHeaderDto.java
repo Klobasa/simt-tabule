@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 public class GetTripHeaderDto {
     private String id;
     private Line line;
+    private String playerNick;
     private GetTripDto startStation;
     private GetTripDto endStation;
     private GetTripDto actualStation;
@@ -71,5 +72,13 @@ public class GetTripHeaderDto {
 
     public void setDepartureFromActualStation(LocalDateTime departureFromActualStation) {
         this.departureFromActualStation = departureFromActualStation;
+    }
+
+    public String getPlayerNick() {
+        return playerNick;
+    }
+
+    public void setPlayerNick(String playerNick) {
+        this.playerNick = playerNick;
     }
 }
