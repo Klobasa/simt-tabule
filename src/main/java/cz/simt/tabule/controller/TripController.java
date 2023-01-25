@@ -21,18 +21,7 @@ public class TripController {
         this.timesService = timesService;
     }
 
-    /**
-    @GetMapping("/spoj")
-    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
-    public @ResponseBody String getTripList() {
-        timesService.saveCurrentTime("tripCalled");
-        timesService.saveCurrentTime("pageLoaded");
-
-    }
-     */
-
-    @GetMapping("/spoj")
-    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
+    @GetMapping(value = "/spoj", produces = "application/json; charset=utf-8")
     public @ResponseBody String getTripList(@RequestParam(name = "man", required = false, defaultValue = "true") boolean manipulacni) {
         playerService.loadPlayerWhenInactive();
         timesService.saveCurrentTime("tripCalled");
@@ -44,8 +33,7 @@ public class TripController {
 
     }
 
-    @GetMapping("/spoj/{playerId}")
-    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
+    @GetMapping(value = "/spoj/{playerId}", produces = "application/json; charset=utf-8")
     public @ResponseBody String getFullTrip(@PathVariable final String playerId) {
         playerService.loadPlayerWhenInactive();
         timesService.saveCurrentTime("tripCalled");

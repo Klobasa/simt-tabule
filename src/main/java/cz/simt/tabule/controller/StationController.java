@@ -6,7 +6,6 @@ import cz.simt.tabule.service.TimesService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -28,8 +27,7 @@ public class StationController {
         this.playerService = playerService;
     }
 
-    @GetMapping("/zastavky")
-    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
+    @GetMapping(value = "/zastavky", produces = "application/json; charset=utf-8")
     public @ResponseBody String getListOfStations() {
         playerService.loadPlayerWhenInactive();
         timesService.saveCurrentTime("pageLoaded");
@@ -38,8 +36,7 @@ public class StationController {
                 .toString();
     }
 
-    @GetMapping("/zastavky/{stationUrlName}")
-    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
+    @GetMapping(value = "/zastavky/{stationUrlName}", produces = "application/json; charset=utf-8")
     public @ResponseBody String getStationData(@PathVariable final String stationUrlName) {
         playerService.loadPlayerWhenInactive();
         timesService.saveCurrentTime("stationCalled");

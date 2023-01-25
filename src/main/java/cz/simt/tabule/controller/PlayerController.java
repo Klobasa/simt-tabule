@@ -4,7 +4,6 @@ import cz.simt.tabule.service.PlayerService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -17,8 +16,7 @@ public class PlayerController {
         this.playerService = playerService;
     }
 
-    @GetMapping("/playersId")
-    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
+    @GetMapping(value = "/playersId", produces = "application/json; charset=utf-8")
     public @ResponseBody String getPlayersId() {
         return new JSONObject()
                 .put("players", playerService.getAllPlayersId())

@@ -131,7 +131,7 @@ public class TripService {
             return new GetTripDto(groupStationService.getGroupStationById(as.getStopId()).getName(), as.getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
         } catch (NullPointerException e) {
             return new GetTripDto();
-        }
+        } //TODO: NonUniqueResultException: query did not return a unique result: 2
     }
 
     public void unsetPosition(String playerId) {

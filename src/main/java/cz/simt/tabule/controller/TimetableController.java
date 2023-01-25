@@ -5,7 +5,6 @@ import cz.simt.tabule.service.TimetableService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -20,8 +19,7 @@ public class TimetableController {
         this.timesService = timesService;
     }
 
-    @GetMapping("/jizdnidoby")
-    @CrossOrigin(origins = {"https://klobasa.github.io/", "http://localhost:8081/"})
+    @GetMapping(value = "/jizdnidoby", produces = "application/json; charset=utf-8")
     public @ResponseBody String getTimetables() {
         return new JSONObject()
                 .put("dataGenerated", timesService.getTimeById("routesJsonGenerated"))
