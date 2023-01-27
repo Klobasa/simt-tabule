@@ -44,6 +44,7 @@ public class TimetableService {
             List<Timetable> directionB = new java.util.ArrayList<>(Collections.emptyList());
             List<Timetable> fullRoute = new java.util.ArrayList<>(Collections.emptyList());
             List<String> directions = routeService.getDirectionsForLine(line);
+            directions = directions.stream().sorted().collect(Collectors.toList());
 
             for (String direction : directions) {
                 List<Route> routeList = routeService.getRoute(line, direction);
