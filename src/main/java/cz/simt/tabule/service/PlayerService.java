@@ -83,6 +83,8 @@ public class PlayerService {
             logger.error("CANNOT LOAD PLAYERS, SKIPPING..\n" + e.getMessage());
             e.printStackTrace();
             return;
+        } finally {
+            executor.shutdown();
         }
         logger.info("Download players DONE.");
 
